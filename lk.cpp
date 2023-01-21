@@ -5,6 +5,27 @@ using namespace std;
 using namespace cv;
 
 
+Mat resize_image (Mat input_image, float scale) {
+    Mat output_image;
+    resize(input_image, output_image, Size(input_image.cols / scale, input_image.rows / scale));
+    return output_image;
+}
+
+template <size_t N>
+void destroy_windows(string (&windows)[N]) {
+    for (const string window_name : windows) {
+        destroyWindow(window_name);
+    }
+}
+
+template <size_t N>
+void initialize_windows(string (&windows)[N]) {
+    for (const string window_name : windows) {
+        namedWindow(window_name);
+    }
+}
+
+
 int main () {
     cout << "Opening camera..." << endl; 
 
@@ -25,39 +46,58 @@ int main () {
     y_kernel.at<float>(1, 0) = 0.0f;
     y_kernel.at<float>(2, 0) = 1.0f;
 
+    string windows[] = {
+        "X Gradient",
+        "Y Gradient",
+        "T Gradient",
+        "Frame",
+    };
 
-    float scale = 4;
+    initialize_windows(windows);
+
+    float scale {10.0};
+
+    Mat previous_frame;
+    Mat previous_frame_scaled;
 
     while (1) {
-        Mat frame;
+        Mat current_frame;
+        cap >> current_frame;
 
-        cap >> frame;
-
-        resize(frame, frame, Size(frame.cols / scale, frame.rows / scale));
-
-
-        if (frame.empty())
+        if (current_frame.empty())
             break;
+        if (previous_frame.empty()) {
+            previous_frame = current_frame.clone();
+            previous_frame_scaled = resize_image(previous_frame, scale);
+        }
 
         Mat x_gradient;
-        filter2D(frame, x_gradient, -1 , x_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
-
         Mat y_gradient;
-        filter2D(frame, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
+
+        Mat current_frame_scaled = resize_image(current_frame, scale);
+
+        filter2D(current_frame_scaled, x_gradient, -1 , x_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
+        filter2D(current_frame_scaled, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
         
-        // imshow("Video capture", frame);
-        // imshow("X Gradient", x_gradient);
-
-        resize(y_gradient, y_gradient, Size(y_gradient.cols * scale, y_gradient.rows * scale));
-
+        x_gradient = resize_image(x_gradient, 1 / scale);
+        y_gradient = resize_image(y_gradient, 1 / scale);
+        imshow("X Gradient", x_gradient);
         imshow("Y Gradient", y_gradient);
+
+        Mat t_gradient;
+        subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
+        t_gradient = resize_image(t_gradient, 1 / scale);
+        imshow("T Gradient", t_gradient);
+
 
         char key_press = waitKey(10);
         if (key_press==27)
             break;
+        previous_frame = current_frame.clone();
+        previous_frame_scaled = current_frame_scaled.clone();
     }
     
     cap.release();
-    destroyAllWindows();
+    destroy_windows(windows);
     return 0;
 }
