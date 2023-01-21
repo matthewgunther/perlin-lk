@@ -71,23 +71,25 @@ int main () {
             previous_frame_scaled = resize_image(previous_frame, scale);
         }
 
-        Mat x_gradient;
-        Mat y_gradient;
-
         Mat current_frame_scaled = resize_image(current_frame, scale);
 
+        Mat x_gradient;
+        Mat y_gradient;
         filter2D(current_frame_scaled, x_gradient, -1 , x_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
         filter2D(current_frame_scaled, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
-        
-        x_gradient = resize_image(x_gradient, 1 / scale);
-        y_gradient = resize_image(y_gradient, 1 / scale);
-        imshow("X Gradient", x_gradient);
-        imshow("Y Gradient", y_gradient);
 
         Mat t_gradient;
         subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
+
+
+        x_gradient = resize_image(x_gradient, 1 / scale);
+        y_gradient = resize_image(y_gradient, 1 / scale);
         t_gradient = resize_image(t_gradient, 1 / scale);
+        imshow("X Gradient", x_gradient);
+        imshow("Y Gradient", y_gradient);
         imshow("T Gradient", t_gradient);
+
+        
 
 
         char key_press = waitKey(10);
