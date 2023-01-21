@@ -5,6 +5,9 @@ using namespace std;
 using namespace cv;
 
 
+
+
+
 Mat resize_image (Mat input_image, float scale) {
     Mat output_image;
     resize(input_image, output_image, Size(input_image.cols / scale, input_image.rows / scale));
@@ -55,7 +58,7 @@ int main () {
 
     initialize_windows(windows);
 
-    float scale {10.0};
+    float scale { 10.0 };
 
     Mat previous_frame;
     Mat previous_frame_scaled;
@@ -63,6 +66,8 @@ int main () {
     while (1) {
         Mat current_frame;
         cap >> current_frame;
+        cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
+        
 
         if (current_frame.empty())
             break;
@@ -85,9 +90,44 @@ int main () {
         x_gradient = resize_image(x_gradient, 1 / scale);
         y_gradient = resize_image(y_gradient, 1 / scale);
         t_gradient = resize_image(t_gradient, 1 / scale);
-        imshow("X Gradient", x_gradient);
-        imshow("Y Gradient", y_gradient);
+        // imshow("X Gradient", x_gradient);
+        // imshow("Y Gradient", y_gradient);
         imshow("T Gradient", t_gradient);
+
+
+
+        int window_dim { 2 };
+
+        for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
+            for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
+                Mat Ax = x_gradient(
+                    Range(r - window_dim, r + window_dim + 1),
+                    Range(c - window_dim, c + window_dim + 1)
+                ).clone();
+                Mat Ay = y_gradient(
+                    Range(r - window_dim, r + window_dim + 1),
+                    Range(c - window_dim, c + window_dim + 1)
+                ).clone();
+                Mat b = t_gradient(
+                    Range(r - window_dim, r + window_dim + 1),
+                    Range(c - window_dim, c + window_dim + 1)
+                ).clone();
+
+                Ax = Ax.reshape(1, Ax.rows * Ax.cols);
+                Ay = Ay.reshape(1, Ay.rows * Ay.cols);
+                b = b.reshape(1, b.rows * b.cols);
+
+                Mat A;
+                hconcat(Ax, Ay, A);
+
+                A.convertTo(A, CV_32FC1);
+                b.convertTo(b, CV_32FC1);
+
+                Mat nu = (A.t() * A).inv() * A.t() * b;
+
+
+            }
+        }
 
         
 
