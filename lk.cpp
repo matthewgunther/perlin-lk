@@ -5,6 +5,8 @@ using namespace std;
 using namespace cv;
 
 
+float scale { 4 };
+
 
 
 
@@ -12,6 +14,11 @@ Mat resize_image (Mat input_image, float scale) {
     Mat output_image;
     resize(input_image, output_image, Size(input_image.cols / scale, input_image.rows / scale));
     return output_image;
+}
+
+void show_image(string window_name, Mat image) {
+    image = resize_image(image, 1 / scale); 
+    imshow(window_name, image);
 }
 
 template <size_t N>
@@ -60,7 +67,6 @@ int main () {
 
     initialize_windows(windows);
 
-    float scale { 4 };
 
     Mat previous_frame;
     Mat previous_frame_scaled;
@@ -135,22 +141,14 @@ int main () {
 
         u.convertTo(u, CV_8UC1);
         v.convertTo(v, CV_8UC1);
-        u = resize_image(u, 1 / scale);
-        v = resize_image(v, 1 / scale);
-        imshow("LK X", u);
-        imshow("LK Y", v);
-
-
-
-        // x_gradient = resize_image(x_gradient, 1 / scale);
-        // y_gradient = resize_image(y_gradient, 1 / scale);
-        // t_gradient = resize_image(t_gradient, 1 / scale);
-        // imshow("X Gradient", x_gradient);
-        // imshow("Y Gradient", y_gradient);
-        // imshow("T Gradient", t_gradient);
-
-
         
+
+        // show_image("X Gradient", x_gradient);
+        // show_image("Y Gradient", y_gradient);
+        // show_image("T Gradient", t_gradient);
+        show_image("LK X", u);
+        show_image("LK Y", v);
+
 
 
         char key_press = waitKey(10);
