@@ -54,11 +54,13 @@ int main () {
         "Y Gradient",
         "T Gradient",
         "Frame",
+        "LK X",
+        "LK Y",
     };
 
     initialize_windows(windows);
 
-    float scale { 10.0 };
+    float scale { 4 };
 
     Mat previous_frame;
     Mat previous_frame_scaled;
@@ -87,19 +89,16 @@ int main () {
         subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
 
 
-        x_gradient = resize_image(x_gradient, 1 / scale);
-        y_gradient = resize_image(y_gradient, 1 / scale);
-        t_gradient = resize_image(t_gradient, 1 / scale);
-        // imshow("X Gradient", x_gradient);
-        // imshow("Y Gradient", y_gradient);
-        imshow("T Gradient", t_gradient);
+        
 
 
-
-        int window_dim { 2 };
+        int window_dim { 4 };
+        Mat u = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+        Mat v = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
 
         for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
             for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
+
                 Mat Ax = x_gradient(
                     Range(r - window_dim, r + window_dim + 1),
                     Range(c - window_dim, c + window_dim + 1)
@@ -123,11 +122,33 @@ int main () {
                 A.convertTo(A, CV_32FC1);
                 b.convertTo(b, CV_32FC1);
 
-                Mat nu = (A.t() * A).inv() * A.t() * b;
+                Mat nu = (A.t() * A).inv() * A.t() * b; // compute motion vector
+                nu = nu * 10;
 
+                u.at<float>(r, c) = nu.at<float>(0, 0);
+                v.at<float>(r, c) = nu.at<float>(1, 0);
 
             }
         }
+
+        
+
+        u.convertTo(u, CV_8UC1);
+        v.convertTo(v, CV_8UC1);
+        u = resize_image(u, 1 / scale);
+        v = resize_image(v, 1 / scale);
+        imshow("LK X", u);
+        imshow("LK Y", v);
+
+
+
+        // x_gradient = resize_image(x_gradient, 1 / scale);
+        // y_gradient = resize_image(y_gradient, 1 / scale);
+        // t_gradient = resize_image(t_gradient, 1 / scale);
+        // imshow("X Gradient", x_gradient);
+        // imshow("Y Gradient", y_gradient);
+        // imshow("T Gradient", t_gradient);
+
 
         
 
