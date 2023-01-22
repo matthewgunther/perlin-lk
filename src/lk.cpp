@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
+#include "../include/particle.h"
 
 using namespace std;
 using namespace cv;
@@ -7,7 +8,6 @@ using namespace cv;
 
 float scale { 4 };
 int window_dim { 4 };
-
 
 
 Mat resize_image (Mat input_image, float scale) {
@@ -37,6 +37,17 @@ void initialize_windows(string (&windows)[N]) {
 
 
 int main () {
+
+    // Mat fr = Mat::zeros(100, 200, CV_8UC3);
+
+    Particle bub = Particle(
+        5, 10,
+        10, 10,
+        0.5, 0
+    );
+
+
+
     cout << "Opening camera..." << endl; 
 
     VideoCapture cap(0);
@@ -63,6 +74,7 @@ int main () {
         "Frame",
         "LK X",
         "LK Y",
+        "bub"
     };
 
     initialize_windows(windows);
@@ -72,9 +84,21 @@ int main () {
     Mat previous_frame_scaled;
 
     while (1) {
+        
+
+        
+
+
+
+
         Mat current_frame;
         cap >> current_frame;
         cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
+
+
+
+
+        
         
 
         if (current_frame.empty())
@@ -96,8 +120,8 @@ int main () {
 
 
         
-        Mat u = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
-        Mat v = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+        Mat u = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+        Mat v = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
 
         for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
             for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
@@ -135,13 +159,34 @@ int main () {
 
         
 
-        u.convertTo(u, CV_8UC1);
-        v.convertTo(v, CV_8UC1);
         
 
         // show_image("X Gradient", x_gradient);
         // show_image("Y Gradient", y_gradient);
         // show_image("T Gradient", t_gradient);
+
+
+
+        // int window_width { 700 };
+        // int window_height { 500 };
+        // Mat frame_bub = Mat::zeros(window_height, window_width, CV_8UC3);
+
+        int window_width = current_frame.cols;
+        int window_height = current_frame.rows;
+        Mat frame_bub = Mat::zeros(window_height, window_width, CV_8UC3);
+        circle(frame_bub, Point(int(bub.pos_x), int(bub.pos_y)), 20, Scalar(0, 255, 0), -1);
+        imshow("bub", frame_bub);
+
+        bub.vel_x = bub.vel_x + u.at<float>(int(bub.pos_x / scale), int(bub.pos_y / scale)) * 10;
+        // bub.vel_y = u.at<float>(bub.pos_x, bub.pos_y) * 5;
+        bub.update(0.2, window_width, window_height);
+        cout << bub.vel_x  << " - " << bub.vel_y <<  endl;
+
+
+
+
+        u.convertTo(u, CV_8UC1);
+        v.convertTo(v, CV_8UC1);
         show_image("LK X", u);
         show_image("LK Y", v);
 
