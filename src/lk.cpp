@@ -6,7 +6,7 @@ using namespace cv;
 
 
 float scale { 4 };
-
+int window_dim { 4 };
 
 
 
@@ -96,9 +96,6 @@ int main () {
 
 
         
-
-
-        int window_dim { 4 };
         Mat u = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
         Mat v = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
 
@@ -128,12 +125,11 @@ int main () {
                 A.convertTo(A, CV_32FC1);
                 b.convertTo(b, CV_32FC1);
 
-                Mat nu = (A.t() * A).inv() * A.t() * b; // compute motion vector
+                Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
                 nu = nu * 10;
 
                 u.at<float>(r, c) = nu.at<float>(0, 0);
                 v.at<float>(r, c) = nu.at<float>(1, 0);
-
             }
         }
 
