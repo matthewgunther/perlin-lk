@@ -3,28 +3,34 @@
 
 using namespace std;
 
-void Particle::set_pos(float x, float y) {
-    pos_x = x;
-    pos_y = y;
+float check_window_bound(float value, float bound) {
+    if (value < 0) {
+        value += bound;
+    } else if (value > bound) {
+        value -= bound;
+    }
+    return value;
+}
+
+void Particle::initialize_vectors(
+        float pos_x, float pos_y,
+        float vel_x, float vel_y,
+        float acc_x, float acc_y
+    ) {
+    pos.x = pos_x;
+    pos.y = pos_y;
+    vel.x = vel_x;
+    vel.y = vel_y;
+    acc.x = acc_x;
+    acc.y = acc_y;
 }
 
 void Particle::update(float timestep, int window_width, int window_height) {
-    pos_x = pos_x + vel_x * timestep;
-    pos_y = pos_y + vel_y * timestep;
-    vel_x = vel_x - vel_x * acc_x * timestep;
-    vel_y = vel_y + acc_y * timestep;
-
-    if (pos_x < 0) {
-        pos_x += window_width;
-    } else if (pos_x > window_width) {
-        pos_x -= window_width;
-    }
-
-    if (pos_y < 0) {
-        pos_y += window_height;
-    } else if (pos_y > window_height) {
-        pos_y -= window_height;
-    }
+ 
+    pos.update(vel, timestep);
+    vel.update(acc, timestep);
+    pos.x = check_window_bound(pos.x, (float)window_width);
+    pos.y = check_window_bound(pos.y, (float)window_height);
 
 
 }
