@@ -26,15 +26,9 @@ void Particle::initialize_vectors(
 }
 
 void Particle::update(float timestep, int window_width, int window_height) {
- 
     pos.update(vel, timestep);
     vel.update(acc, timestep);
     pos.x = check_window_bound(pos.x, (float)window_width);
     pos.y = check_window_bound(pos.y, (float)window_height);
-
-
+    vel.check_magnitude_limit();
 }
-
-// void Particle::print_pos () {
-//     cout << Particle::x_pos << " - " << Particle::y_pos << endl;
-// }

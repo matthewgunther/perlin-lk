@@ -111,32 +111,10 @@ Mat draw_color_bar (Mat image) {
 
 int main () {
 
-    Particle bub = Particle(
-        // 5, 10,
-        // 100, 100,
-        // 0, 0
-    );
+    Particle bub = Particle();
+    bub.initialize_vectors(200, 300, 10, 0, 0, 0);
+    bub.vel.magnitude_limit = 100;
 
-    bub.initialize_vectors(100, 200, 100, 200, 0, 0);
-
-
-
-    Mat previous_frame;
-    Mat previous_frame_scaled;
-
-    Mat x_gradient;
-    Mat y_gradient;
-    Mat t_gradient;
-
-    Mat x_kernel(1, 3, CV_32F);
-    x_kernel.at<float>(0, 0) = -1.0f;
-    x_kernel.at<float>(0, 1) = 0.0f;
-    x_kernel.at<float>(0, 2) = 1.0f;
-
-    Mat y_kernel(3, 1, CV_32F);
-    y_kernel.at<float>(0, 0) = -1.0f;
-    y_kernel.at<float>(1, 0) = 0.0f;
-    y_kernel.at<float>(2, 0) = 1.0f;
 
     string windows[] = {
         "X Gradient",
@@ -149,8 +127,6 @@ int main () {
     };
     initialize_windows(windows);
 
-
-
     // initialize camera capture
     cout << "Opening camera..." << endl; 
     VideoCapture cap(0);
@@ -159,13 +135,20 @@ int main () {
         return 1;
     }
 
+    Mat previous_frame;
+    Mat previous_frame_scaled;
 
 
     while (1) {
         
         Mat current_frame;
+        
+        
+
         cap >> current_frame;
         cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
+        flip(current_frame, current_frame, 1);
+
 
         if (current_frame.empty())
             break;
@@ -178,12 +161,31 @@ int main () {
         Mat current_frame_scaled = resize_image(current_frame, scale);
         current_frame_scaled.convertTo(current_frame_scaled, CV_32FC1);
 
+
+        // compute gradient matrices 
+        Mat t_gradient;
+        Mat x_gradient;
+        Mat y_gradient;
+
+        Mat x_kernel(1, 3, CV_32F);
+        x_kernel.at<float>(0, 0) = -1.0f;
+        x_kernel.at<float>(0, 1) = 0.0f;
+        x_kernel.at<float>(0, 2) = 1.0f;
+
+        Mat y_kernel(3, 1, CV_32F);
+        y_kernel.at<float>(0, 0) = -1.0f;
+        y_kernel.at<float>(1, 0) = 0.0f;
+        y_kernel.at<float>(2, 0) = 1.0f;
+
         subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
         filter2D(current_frame_scaled, x_gradient, -1 , x_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
         filter2D(current_frame_scaled, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
 
+
+        // initialize flow matrices
         Mat u = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
         Mat v = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+
 
         for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
             for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
@@ -212,14 +214,13 @@ int main () {
                 b.convertTo(b, CV_32FC1);
 
                 Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
-                nu = nu * 10;
+                nu = -10 * nu;
 
                 u.at<float>(r, c) = nu.at<float>(0, 0);
                 v.at<float>(r, c) = nu.at<float>(1, 0);
 
             }
         }
-
 
 
 
@@ -251,13 +252,11 @@ int main () {
         bub.update(0.2, flow.cols, flow.rows);
         circle(flow, Point(int(bub.pos.x), int(bub.pos.y)), 20, Scalar(0, 255, 0), -1);
 
+        float add_x = u.at<float>(int(bub.pos.y / scale), int(bub.pos.x / scale));
+        float add_y = v.at<float>(int(bub.pos.y / scale), int(bub.pos.x / scale));
 
-        // float add_x = u.at<float>(int(bub.pos_x / scale), int(bub.pos_y / scale));
+        bub.vel.add(add_x, add_y); 
 
-        // bub.vel_x = bub.vel_x + u.at<float>(int(bub.pos_x / scale), int(bub.pos_y / scale));
-        // bub.vel_y = u.at<float>(bub.pos_x, bub.pos_y) * 5;
-
-        // bub.update(0.2, flow.cols, flow.rows);
 
         imshow("flow", flow);
         imshow("Frame", current_frame);
