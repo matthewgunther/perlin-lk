@@ -4,15 +4,6 @@
 #include <cmath>
 
 
-// float check_if_nan(float value) {
-//     if (isnanf(value)) {
-//         return 0;
-//     }
-//     return value;
-// }
-
-
-
 class Particle {
 
     public:
@@ -64,7 +55,7 @@ class Particle {
             float vel_x, float vel_y,
             float acc_x, float acc_y
         );
-        void update(float timestep, int window_width, int window_height);
+        void update(float timestep, int window_width, int window_height, int padding);
 
         Particle() {}  
 };

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
 #include "../include/particle.h"
+#include <random>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -13,9 +14,6 @@ using namespace cv;
 float scale { 10 };
 float flow_threshold { 5 };
 int window_dim { 10 };
-
-
-
 
 
 
@@ -111,9 +109,28 @@ Mat draw_color_bar (Mat image) {
 
 int main () {
 
-    Particle bub = Particle();
-    bub.initialize_vectors(200, 300, 10, 0, 0, 0);
-    bub.vel.magnitude_limit = 100;
+    int num {1000};
+    Particle bubs[num];
+
+    random_device rd; // obtain a random number from hardware
+    mt19937 gen(rd()); // seed the generator
+    uniform_int_distribution<> distr_pos(100, 900); // define the range
+    uniform_int_distribution<> distr_vec(-10, 10); // define the range
+
+
+    for (int i = 0; i < num; i++) {
+        bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
+        // bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
+        bubs[i].vel.magnitude_limit = 50;
+    }
+
+
+
+    // Particle bub = Particle();
+    // bub.initialize_vectors(200, 300, 10, 0, 0, 0);
+    // bub.vel.magnitude_limit = 100;
+
+
 
 
     string windows[] = {
@@ -144,10 +161,11 @@ int main () {
         Mat current_frame;
         
         
-
-        cap >> current_frame;
-        cvtColor(current_frame, current_frame, COLOR_BGR2GRAY);
+        Mat current_frame_color;
+        cap >> current_frame_color;
+        cvtColor(current_frame_color, current_frame, COLOR_BGR2GRAY);
         flip(current_frame, current_frame, 1);
+        flip(current_frame_color, current_frame_color, 1);
 
 
         if (current_frame.empty())
@@ -186,7 +204,6 @@ int main () {
         Mat u = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
         Mat v = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
 
-
         for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
             for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
 
@@ -214,7 +231,7 @@ int main () {
                 b.convertTo(b, CV_32FC1);
 
                 Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
-                nu = -10 * nu;
+                nu = -10 * nu; // make negative to flip flow direction
 
                 u.at<float>(r, c) = nu.at<float>(0, 0);
                 v.at<float>(r, c) = nu.at<float>(1, 0);
@@ -248,18 +265,22 @@ int main () {
         flow = resize_image(flow, 1 / scale);
         flow = draw_color_bar(flow);
 
+        for (int i = 0; i < num; i++) {
+            int padding {130};
+            bubs[i].update(0.2, flow.cols, flow.rows, padding);
+            circle(current_frame_color, Point(int(bubs[i].pos.x), int(bubs[i].pos.y)), 5, Scalar(255, 0, 255), 2);
+    
 
-        bub.update(0.2, flow.cols, flow.rows);
-        circle(flow, Point(int(bub.pos.x), int(bub.pos.y)), 20, Scalar(0, 255, 0), -1);
+            float add_x = u.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
+            float add_y = v.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
 
-        float add_x = u.at<float>(int(bub.pos.y / scale), int(bub.pos.x / scale));
-        float add_y = v.at<float>(int(bub.pos.y / scale), int(bub.pos.x / scale));
+            bubs[i].vel.add(add_x *10, add_y*10); 
+            // bubs[i].vel.add(bubs[i].vel.x * -0.15, 0);
 
-        bub.vel.add(add_x, add_y); 
-
+        }
 
         imshow("flow", flow);
-        imshow("Frame", current_frame);
+        imshow("Frame", current_frame_color);
 
 
         char key_press = waitKey(10);

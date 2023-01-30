@@ -3,11 +3,11 @@
 
 using namespace std;
 
-float check_window_bound(float value, float bound) {
-    if (value < 0) {
-        value += bound;
-    } else if (value > bound) {
-        value -= bound;
+float check_window_bound(float value, float bound, float padding) {
+    if (value < padding) {
+        value += (bound - padding * 2);
+    } else if (value > (bound - padding)) {
+        value -= (bound - padding * 2);
     }
     return value;
 }
@@ -25,10 +25,10 @@ void Particle::initialize_vectors(
     acc.y = acc_y;
 }
 
-void Particle::update(float timestep, int window_width, int window_height) {
+void Particle::update(float timestep, int window_width, int window_height, int padding) {
     pos.update(vel, timestep);
     vel.update(acc, timestep);
-    pos.x = check_window_bound(pos.x, (float)window_width);
-    pos.y = check_window_bound(pos.y, (float)window_height);
+    pos.x = check_window_bound(pos.x, (float)window_width, (float)padding);
+    pos.y = check_window_bound(pos.y, (float)window_height, (float)padding);
     vel.check_magnitude_limit();
 }
