@@ -42,7 +42,6 @@ void initialize_windows(string (&windows)[N]) {
     }
 }
 
-
 float map_atan_to_360_deg(float x, float y, float angle) {
     if (x > 0) {
         if (angle < 0) {
@@ -110,7 +109,7 @@ Mat draw_color_bar (Mat image) {
 int main () {
 
     int num {1000};
-    Particle bubs[num];
+    Particle bubbles[num];
 
     random_device rd; // obtain a random number from hardware
     mt19937 gen(rd()); // seed the generator
@@ -119,13 +118,13 @@ int main () {
 
 
     for (int i = 0; i < num; i++) {
-        bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
-        // bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
-        bubs[i].vel.magnitude_limit = 50;
-        bubs[i].acc.magnitude_limit = 50;
+        bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
+        // bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
+        bubbles[i].vel.magnitude_limit = 60;
+        bubbles[i].acc.magnitude_limit = 100;
 
-        bubs[i].vel.dampening_coeff = 0.15;
-        bubs[i].acc.dampening_coeff = 0.15;
+        bubbles[i].vel.dampening_coeff = 0.125;
+        bubbles[i].acc.dampening_coeff = 0.25;
     }
 
 
@@ -237,53 +236,65 @@ int main () {
 
 
 
-        // visualize LK flow, color = direction
-        Mat flow = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_8UC3);
-        for (int r=0; r < current_frame_scaled.rows; r++) {
-            for (int c=0; c < current_frame_scaled.cols; c++) {
-                float x = u.at<float>(r, c);
-                float y = v.at<float>(r, c);
+        // // visualize LK flow, color = direction
+        // Mat flow = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_8UC3);
+        // for (int r=0; r < current_frame_scaled.rows; r++) {
+        //     for (int c=0; c < current_frame_scaled.cols; c++) {
+        //         float x = u.at<float>(r, c);
+        //         float y = v.at<float>(r, c);
+
+        //         if (sqrtf32(pow(x, 2) + pow(y, 2)) > flow_threshold) {
+
+        //             float angle = atanf32(y / x) * 180 / M_PI;
+        //             angle = map_atan_to_360_deg(x, y, angle); // maps arctan output to 360 degrees
+        //             Vec3b color = get_rgb_from_hsv(angle);
+
+        //             flow.at<Vec3b>(r, c) = color;
+        //         }
+        //     }
+        // }
+
+        // flow = resize_image(flow, 1 / scale);
+        // flow = draw_color_bar(flow);
+        // imshow("flow", flow);
 
 
-                if (sqrtf32(pow(x, 2) + pow(y, 2)) > flow_threshold) {
-
-                    float angle = atanf32(y / x) * 180 / M_PI;
-                    angle = map_atan_to_360_deg(x, y, angle); // maps arctan output to 360 degrees
-                    Vec3b color = get_rgb_from_hsv(angle);
-
-                    flow.at<Vec3b>(r, c) = color;
-                }
-            }
-        }
 
 
-        flow = resize_image(flow, 1 / scale);
-        flow = draw_color_bar(flow);
 
         for (int i = 0; i < num; i++) {
             int padding {130};
             float timestep { 0.6 };
 
 
-            bubs[i].update(timestep, flow.cols, flow.rows, padding);
-            circle(current_frame_color, Point(int(bubs[i].pos.x), int(bubs[i].pos.y)), 5, Scalar(255, 50, 50), 2);
     
 
-            float add_x = u.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
-            float add_y = v.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
+            float add_x = u.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
+            float add_y = v.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
 
-            bubs[i].acc.add(add_x * 1, add_y * 1); 
+            
+            if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > flow_threshold) {
 
-            bubs[i].vel.dampening();
-            bubs[i].acc.dampening();
+                float acc_scale { 5 };
 
-            // bubs[i].acc.add(bubs[i].acc.x * -0.15, bubs[i].acc.y * -0.15);
+                float angle = atanf32(add_y / add_x) * 180 / M_PI;
+                angle = map_atan_to_360_deg(add_x, add_y, angle); // maps arctan output to 360 degrees
+                Vec3b color = get_rgb_from_hsv(angle);
+                bubbles[i].acc.add(add_x * acc_scale, add_y * acc_scale); 
+                bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
+                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 5, color, 2);
 
+            } else {
+                bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
+                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 5, Scalar(255, 255, 255), 2);
+            }
 
-
+            bubbles[i].acc.x = 0;
+            bubbles[i].acc.y = 0;
+            bubbles[i].vel.dampening();
+            // bubbles[i].acc.dampening();
         }
 
-        imshow("flow", flow);
         imshow("Frame", current_frame_color);
 
 
