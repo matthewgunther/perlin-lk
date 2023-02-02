@@ -11,6 +11,7 @@ class Particle {
         struct vec {
             float x, y;
             float magnitude_limit { 3.0e+038 };
+            float dampening_coeff { 0 };
             
             void add (float x_to_add, float y_to_add) {
                 if (isnanf(x_to_add) || abs(x_to_add) <= 1 || abs(x_to_add) > 100)
@@ -21,6 +22,11 @@ class Particle {
                 x += x_to_add;
                 y += y_to_add;
                 check_magnitude_limit();
+            }
+
+            void dampening () {
+                x -= x * dampening_coeff;
+                y -= y * dampening_coeff;
             }
 
             void update (vec vector, float timestep) {

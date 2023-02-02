@@ -122,15 +122,11 @@ int main () {
         bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
         // bubs[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
         bubs[i].vel.magnitude_limit = 50;
+        bubs[i].acc.magnitude_limit = 50;
+
+        bubs[i].vel.dampening_coeff = 0.15;
+        bubs[i].acc.dampening_coeff = 0.15;
     }
-
-
-
-    // Particle bub = Particle();
-    // bub.initialize_vectors(200, 300, 10, 0, 0, 0);
-    // bub.vel.magnitude_limit = 100;
-
-
 
 
     string windows[] = {
@@ -159,9 +155,8 @@ int main () {
     while (1) {
         
         Mat current_frame;
-        
-        
         Mat current_frame_color;
+
         cap >> current_frame_color;
         cvtColor(current_frame_color, current_frame, COLOR_BGR2GRAY);
         flip(current_frame, current_frame, 1);
@@ -267,15 +262,24 @@ int main () {
 
         for (int i = 0; i < num; i++) {
             int padding {130};
-            bubs[i].update(0.2, flow.cols, flow.rows, padding);
-            circle(current_frame_color, Point(int(bubs[i].pos.x), int(bubs[i].pos.y)), 5, Scalar(255, 0, 255), 2);
+            float timestep { 0.6 };
+
+
+            bubs[i].update(timestep, flow.cols, flow.rows, padding);
+            circle(current_frame_color, Point(int(bubs[i].pos.x), int(bubs[i].pos.y)), 5, Scalar(255, 50, 50), 2);
     
 
             float add_x = u.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
             float add_y = v.at<float>(int(bubs[i].pos.y / scale), int(bubs[i].pos.x / scale));
 
-            bubs[i].vel.add(add_x *10, add_y*10); 
-            // bubs[i].vel.add(bubs[i].vel.x * -0.15, 0);
+            bubs[i].acc.add(add_x * 1, add_y * 1); 
+
+            bubs[i].vel.dampening();
+            bubs[i].acc.dampening();
+
+            // bubs[i].acc.add(bubs[i].acc.x * -0.15, bubs[i].acc.y * -0.15);
+
+
 
         }
 
