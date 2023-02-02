@@ -1,7 +1,8 @@
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
-#include "../include/particle.h"
 #include <random>
+#include "../include/particle.h"
+#include "../include/PerlinNoise.hpp"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -108,7 +109,7 @@ Mat draw_color_bar (Mat image) {
 
 int main () {
 
-    int num {1000};
+    int num {1500};
     Particle bubbles[num];
 
     random_device rd; // obtain a random number from hardware
@@ -150,6 +151,11 @@ int main () {
     Mat previous_frame;
     Mat previous_frame_scaled;
 
+    const siv::PerlinNoise::seed_type seed = 123456u;
+    const siv::PerlinNoise perlin{ seed };
+
+    float z { 0 };
+    float z_offset { 0.2 };
 
     while (1) {
         
@@ -235,30 +241,21 @@ int main () {
 
 
 
+        int noise_scale {10};
 
-        // // visualize LK flow, color = direction
-        // Mat flow = Mat::zeros(current_frame_scaled.rows, current_frame_scaled.cols, CV_8UC3);
-        // for (int r=0; r < current_frame_scaled.rows; r++) {
-        //     for (int c=0; c < current_frame_scaled.cols; c++) {
-        //         float x = u.at<float>(r, c);
-        //         float y = v.at<float>(r, c);
-
-        //         if (sqrtf32(pow(x, 2) + pow(y, 2)) > flow_threshold) {
-
-        //             float angle = atanf32(y / x) * 180 / M_PI;
-        //             angle = map_atan_to_360_deg(x, y, angle); // maps arctan output to 360 degrees
-        //             Vec3b color = get_rgb_from_hsv(angle);
-
-        //             flow.at<Vec3b>(r, c) = color;
-        //         }
-        //     }
-        // }
-
-        // flow = resize_image(flow, 1 / scale);
-        // flow = draw_color_bar(flow);
-        // imshow("flow", flow);
-
-
+        // cout <<  << " - " <<  << endl;
+        int x_lim = floor(current_frame_scaled.rows / noise_scale);
+        int y_lim = floor(current_frame_scaled.cols / noise_scale);
+        double arr[y_lim][x_lim];
+        for (int y = 0; y < y_lim; y++) {
+            for (int x = 0; x < x_lim; x++) {
+                // double noise = perlin.octave3D_01((x * 0.1), (y * 0.1), z, 4);
+                arr[y][x] = perlin.octave3D_01((x * 0.1), (y * 0.1), z, 4);
+                // std::cout << noise << '\t';
+            }
+            // std::cout << '\n';
+        }
+        z += z_offset;
 
 
 
@@ -266,11 +263,26 @@ int main () {
             int padding {130};
             float timestep { 0.6 };
 
+            int arr_x = floor(bubbles[i].pos.x / scale / noise_scale);
+            int arr_y = floor(bubbles[i].pos.y / scale / noise_scale);
 
+
+            float noz = arr[arr_y][arr_x] * M_PI * 4;
+
+            float fl_scale { 10 };
+            float fl_x = cos(noz);
+            float fl_y = sin(noz);
+
+            bubbles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
+
+            // cout << fl_x << "  " << fl_y << endl;
+
+               
     
 
             float add_x = u.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
             float add_y = v.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
+
 
             
             if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > flow_threshold) {
@@ -282,11 +294,11 @@ int main () {
                 Vec3b color = get_rgb_from_hsv(angle);
                 bubbles[i].acc.add(add_x * acc_scale, add_y * acc_scale); 
                 bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
-                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 5, color, 2);
+                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 3, color, 2);
 
             } else {
                 bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
-                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 5, Scalar(255, 255, 255), 2);
+                circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 3, Scalar(255, 255, 255), 2);
             }
 
             bubbles[i].acc.x = 0;
