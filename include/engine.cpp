@@ -65,7 +65,22 @@ void Engine::compute_x_gradient () {
         0, 
         BORDER_DEFAULT
     );
-    display_image("x", x_gradient);
+}
+
+void Engine::compute_y_gradient () {
+    Mat y_kernel(3, 1, CV_32F);
+    y_kernel.at<float>(0, 0) = -1.0f;
+    y_kernel.at<float>(1, 0) = 0.0f;
+    y_kernel.at<float>(2, 0) = 1.0f;
+    filter2D(
+        current_frame_float,
+        y_gradient, 
+        -1 , 
+        y_kernel, 
+        Point(-1, -1), 
+        0, 
+        BORDER_DEFAULT
+    );
 }
 
 void Engine::store_previous_frame () {

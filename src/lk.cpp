@@ -17,7 +17,7 @@ int main () {
             
             en.compute_t_gradient();
             en.compute_x_gradient();
-            // en.compute_y_gradient();
+            en.compute_y_gradient();
 
             en.store_previous_frame();
             if (key_press==27)
