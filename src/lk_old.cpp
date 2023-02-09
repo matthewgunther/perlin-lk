@@ -139,17 +139,17 @@ int main () {
     };
     initialize_windows(windows);
 
-    // initialize camera capture
-    cout << "Opening camera..." << endl; 
-    VideoCapture cap(0);
-    if(!cap.isOpened()) {
-        cout << "Camera open failed" << endl;
-        return 1;
-    }
+    // // initialize camera capture
+    // cout << "Opening camera..." << endl; 
+    // VideoCapture cap(0);
+    // if(!cap.isOpened()) {
+    //     cout << "Camera open failed" << endl;
+    //     return 1;
+    // }
 
-    Engine engine;
-    int cam_open = engine.open_camera();
-    cout << "cam open" << cam_open << endl;
+    // Engine engine;
+    // int cam_open = engine.open_camera();
+    // cout << "cam open" << cam_open << endl;
 
     Mat previous_frame;
     Mat previous_frame_scaled;
@@ -162,17 +162,17 @@ int main () {
 
     while (1) {
         
-        Mat current_frame;
-        Mat current_frame_color;
+        // Mat current_frame;
+        // Mat current_frame_color;
 
-        cap >> current_frame_color;
-        cvtColor(current_frame_color, current_frame, COLOR_BGR2GRAY);
-        flip(current_frame, current_frame, 1);
-        flip(current_frame_color, current_frame_color, 1);
+        // cap >> current_frame_color;
+        // cvtColor(current_frame_color, current_frame, COLOR_BGR2GRAY);
+        // flip(current_frame, current_frame, 1);
+        // flip(current_frame_color, current_frame_color, 1);
 
 
-        if (current_frame.empty())
-            break;
+        // if (current_frame.empty())
+        //     break;
         if (previous_frame.empty()) {
             previous_frame = current_frame.clone();
             previous_frame_scaled = resize_image(previous_frame, scale);
