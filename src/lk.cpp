@@ -2,6 +2,7 @@
 #include <opencv4/opencv2/opencv.hpp>
 #include <random>
 #include "../include/particle.h"
+#include "../include/engine.h"
 #include "../include/PerlinNoise.hpp"
 
 #define _USE_MATH_DEFINES
@@ -12,10 +13,9 @@ using namespace std;
 using namespace cv;
 
 
-float scale { 10 };
+float scale { 8 };
 float flow_threshold { 5 };
 int window_dim { 10 };
-
 
 
 Mat resize_image (Mat input_image, float scale) {
@@ -92,9 +92,7 @@ Vec3b get_rgb_from_hsv(float angle) {
         color[2] = X_rgb;
     }
     
-
     return color;
-
 }
 
 Mat draw_color_bar (Mat image) {
@@ -149,11 +147,15 @@ int main () {
         return 1;
     }
 
+    Engine engine;
+    int cam_open = engine.open_camera();
+    cout << "cam open" << cam_open << endl;
+
     Mat previous_frame;
     Mat previous_frame_scaled;
 
     const siv::PerlinNoise::seed_type seed = 123456u;
-    const siv::PerlinNoise perlin{ seed };
+    const siv::PerlinNoise perlin { seed };
 
     float z { 0 };
     float z_offset { 0.2 };
@@ -276,9 +278,6 @@ int main () {
 
             bubbles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
 
-            // cout << fl_x << "  " << fl_y << endl;
-
-               
     
 
             float add_x = u.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));

@@ -3,6 +3,7 @@
 
 using namespace std;
 
+
 // helper functions
 float check_window_bound(float value, float bound, float padding) {
     if (value < padding) {
