@@ -173,18 +173,18 @@ int main () {
 
         // if (current_frame.empty())
         //     break;
-        if (previous_frame.empty()) {
-            previous_frame = current_frame.clone();
-            previous_frame_scaled = resize_image(previous_frame, scale);
-            previous_frame_scaled.convertTo(previous_frame_scaled, CV_32FC1);
-        }
+        // if (previous_frame.empty()) {
+        //     previous_frame = current_frame.clone();
+        //     previous_frame_scaled = resize_image(previous_frame, scale);
+        //     previous_frame_scaled.convertTo(previous_frame_scaled, CV_32FC1);
+        // }
 
-        Mat current_frame_scaled = resize_image(current_frame, scale);
-        current_frame_scaled.convertTo(current_frame_scaled, CV_32FC1);
+        // Mat current_frame_scaled = resize_image(current_frame, scale);
+        // current_frame_scaled.convertTo(current_frame_scaled, CV_32FC1);
 
 
         // compute gradient matrices 
-        Mat t_gradient;
+        // Mat t_gradient;
         Mat x_gradient;
         Mat y_gradient;
 
@@ -198,7 +198,7 @@ int main () {
         y_kernel.at<float>(1, 0) = 0.0f;
         y_kernel.at<float>(2, 0) = 1.0f;
 
-        subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
+        // subtract(current_frame_scaled, previous_frame_scaled, t_gradient);
         filter2D(current_frame_scaled, x_gradient, -1 , x_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
         filter2D(current_frame_scaled, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
 
