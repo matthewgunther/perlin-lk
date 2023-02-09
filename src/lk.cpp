@@ -16,6 +16,8 @@ int main () {
             // key_press = en.display_image("bw", en.current_frame_float);
             
             en.compute_t_gradient();
+            en.compute_x_gradient();
+            // en.compute_y_gradient();
 
             en.store_previous_frame();
             if (key_press==27)

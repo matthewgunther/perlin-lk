@@ -51,11 +51,26 @@ void Engine::compute_t_gradient () {
     subtract(current_frame_float, previous_frame_float, t_gradient);
 }
 
+void Engine::compute_x_gradient () {
+    Mat x_kernel(1, 3, CV_32F);
+    x_kernel.at<float>(0, 0) = -1.0f;
+    x_kernel.at<float>(0, 1) = 0.0f;
+    x_kernel.at<float>(0, 2) = 1.0f;
+    filter2D(
+        current_frame_float,
+        x_gradient, 
+        -1 , 
+        x_kernel, 
+        Point(-1, -1), 
+        0, 
+        BORDER_DEFAULT
+    );
+    display_image("x", x_gradient);
+}
+
 void Engine::store_previous_frame () {
     previous_frame_float = current_frame_float.clone();
 }
 
 
-// Engine::x_kernel.at<float>(0, 0) = -1.0f;
-        // x_kernel.at<float>(0, 1) = 0.0f;
-        // x_kernel.at<float>(0, 2) = 1.0f;
+
