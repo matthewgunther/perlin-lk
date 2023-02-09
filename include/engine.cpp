@@ -12,6 +12,11 @@ Mat convert_color_image_to_float(Mat image) {
     return image;
 }
 
+Mat resize_image (Mat image, float scale) {
+    resize(image, image, Size(image.cols / scale, image.rows / scale));
+    return image;
+}
+
 int Engine::open_camera () {
     cout << "Opening camera..."; 
     VideoCapture cap_init(0);
@@ -26,21 +31,22 @@ int Engine::open_camera () {
 
 void Engine::check_for_previous_frame () {
     if (previous_frame_float.empty()) {
-        previous_frame_float = convert_color_image_to_float(current_frame_color.clone());
+        previous_frame_float = current_frame_float.clone();
     }
 }
 
-void Engine::get_current_frame (int flip_image) {
+void Engine::get_current_frame (int flip_image, float downsample_scale) {
     cap >> current_frame_color;
     if (flip_image)
         flip(current_frame_color, current_frame_color, 1);
     current_frame_float = convert_color_image_to_float(current_frame_color);
+    current_frame_float = resize_image(current_frame_float, downsample_scale);
     check_for_previous_frame();
 }
 
 char Engine::display_image (string title, Mat image) {
     imshow(title, image);
-    char key_press = waitKey(0);
+    char key_press = waitKey(1);
 
     if (key_press == 27)
         destroyAllWindows();
@@ -81,6 +87,39 @@ void Engine::compute_y_gradient () {
         0, 
         BORDER_DEFAULT
     );
+}
+
+Mat Engine::get_gradient_roi_vector (int r, int c, int window_dim, Mat gradient) {
+    Mat roi = gradient(
+        Range(r - window_dim, r + window_dim + 1),
+        Range(c - window_dim, c + window_dim + 1)
+    ).clone();
+    roi = roi.reshape(1, roi.rows * roi.cols);
+    return roi;
+}
+
+void Engine::compute_lk_flow (int window_dim) {
+    // initialize flow matrices
+    x_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
+    y_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
+
+    for (int r = window_dim; r < (current_frame_float.rows - window_dim); r++) {
+        for (int c = window_dim; c < (current_frame_float.cols - window_dim); c++) {
+            
+            Mat Ax = get_gradient_roi_vector(r, c, window_dim, x_gradient);
+            Mat Ay = get_gradient_roi_vector(r, c, window_dim, y_gradient);
+            Mat b = get_gradient_roi_vector(r, c, window_dim, t_gradient);
+
+            Mat A;
+            hconcat(Ax, Ay, A);
+
+            Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
+            nu = -10 * nu; // make negative to flip flow direction
+
+            x_flow.at<float>(r, c) = nu.at<float>(0, 0);
+            y_flow.at<float>(r, c) = nu.at<float>(1, 0);
+        }
+    }
 }
 
 void Engine::store_previous_frame () {

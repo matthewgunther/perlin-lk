@@ -9,28 +9,32 @@ using namespace cv;
 
 class Engine {
     public:
-        Mat current_frame_float;
         Mat current_frame_color;
     
     private:
         VideoCapture cap;
+        Mat current_frame_float;
         Mat previous_frame_float;
         Mat t_gradient;
         Mat x_gradient;
         Mat y_gradient;
+        Mat x_flow;
+        Mat y_flow;
 
 
     public:
         int open_camera ();
-        void get_current_frame (int flip_image = 0);
+        void get_current_frame (int flip_image = 0, float downsample_scale = 1);
         char display_image (string title, Mat image);
         void compute_t_gradient ();
         void compute_x_gradient ();
         void compute_y_gradient ();
+        void compute_lk_flow (int window_dim);
         void store_previous_frame ();
 
     private:
         void check_for_previous_frame ();
+        Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);
 };
 
 #endif
