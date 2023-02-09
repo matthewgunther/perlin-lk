@@ -118,6 +118,7 @@ int main () {
     uniform_int_distribution<> distr_vec(-10, 10); // define the range
 
 
+
     for (int i = 0; i < num; i++) {
         bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
         // bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);

@@ -7,55 +7,18 @@
 class Particle {
 
     public:
-
         struct vec {
             float x, y;
             float magnitude_limit { 3.0e+038 };
             float dampening_coeff { 0 };
             
-            void add (float x_to_add, float y_to_add) {
-                if (isnanf(x_to_add) || abs(x_to_add) <= 1 || abs(x_to_add) > 100)
-                    x_to_add = 0;
-                if (isnanf(y_to_add) || abs(y_to_add) <= 1 || abs(y_to_add) > 100)
-                    y_to_add = 0;
-
-                x += x_to_add;
-                y += y_to_add;
-                check_magnitude_limit();
-            }
-
-            void dampening () {
-                x -= x * dampening_coeff;
-                y -= y * dampening_coeff;
-            }
-
-            void update (vec vector, float timestep) {
-                x += vector.x * timestep;
-                y += vector.y * timestep;
-            }
-
-            void check_magnitude_limit () {
-                if (fabs(x) > magnitude_limit) {
-                    if (x > magnitude_limit) {
-                        x = magnitude_limit;
-                    } else {
-                        x = -1 * magnitude_limit;
-                    }
-                }
-                if (fabs(y) > magnitude_limit) {
-                    if (y > magnitude_limit) {
-                        y = magnitude_limit;
-                    } else {
-                        y = -1 * magnitude_limit;
-                    }
-                }
-            }
-
+            void add (float x_to_add, float y_to_add);
+            void dampening ();
+            void update (vec vector, float timestep);
+            void check_magnitude_limit ();
         } pos, vel, acc;
 
-
     public:
-
         void initialize_vectors(
             float pos_x, float pos_y,
             float vel_x, float vel_y,
