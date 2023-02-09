@@ -10,6 +10,7 @@ using namespace cv;
 class Engine {
     public:
         Mat current_frame_color;
+        Mat flow;
     
     private:
         VideoCapture cap;
@@ -25,12 +26,15 @@ class Engine {
     public:
         int open_camera ();
         void get_current_frame (int flip_image = 0, float downsample_scale = 1);
-        char display_image (string title, Mat image);
+        char display_image (string title, Mat image, float downsample_scale = 1);
         void compute_t_gradient ();
         void compute_x_gradient ();
         void compute_y_gradient ();
         void compute_lk_flow (int window_dim);
+        void visualize_lk_flow ();
+
         void store_previous_frame ();
+        void destroy_all_windows ();
 
     private:
         void check_for_previous_frame ();

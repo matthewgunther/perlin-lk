@@ -2,6 +2,9 @@
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 using namespace std;
 using namespace cv;
 
@@ -16,6 +19,71 @@ Mat resize_image (Mat image, float scale) {
     resize(image, image, Size(image.cols / scale, image.rows / scale));
     return image;
 }
+
+
+float map_atan_to_360_deg(float x, float y, float angle) {
+    if (x > 0) {
+        if (angle < 0) {
+            angle += 360.0f;
+        }
+    } else {
+        angle += 180.0f;
+    }
+    return angle;
+}
+
+Vec3b get_rgb_from_hsv(float angle) {
+
+    Vec3b color;
+    
+    float H = angle / 60.0f;
+    float V = 1.0f;
+    float S = 1.0f;
+
+    float C = V * S;
+    int X_rgb = (int)(C * (1 - fabs(fmod(H, 2.0f) - 1)) * 255.0f);
+    int C_rgb = (int)(C * 255.0f);
+
+    if (H >= 0 & H < 1) {
+        color[0] = C_rgb;
+        color[1] = X_rgb;
+        color[2] = 0;
+    } else if (H >= 1 & H < 2) {
+        color[0] = X_rgb;
+        color[1] = C_rgb;
+        color[2] = 0;
+    } else if (H >= 2 & H < 3) {
+        color[0] = 0;
+        color[1] = C_rgb;
+        color[2] = X_rgb;
+    } else if (H >= 3 & H < 4) {
+        color[0] = 0;
+        color[1] = X_rgb;
+        color[2] = C_rgb;
+    } else if (H >= 4 & H < 5) {
+        color[0] = X_rgb;
+        color[1] = 0;
+        color[2] = C_rgb;
+    } else if (H >= 5 & H < 6) {
+        color[0] = C_rgb;
+        color[1] = 0;
+        color[2] = X_rgb;
+    }
+    
+    return color;
+}
+
+
+Vec3b get_color(float x, float y) {
+    float angle = atanf32(y / x) * 180 / M_PI;
+    angle = map_atan_to_360_deg(x, y, angle); // maps arctan output to 360 degrees
+    Vec3b color = get_rgb_from_hsv(angle);
+    return color;
+}
+
+
+
+
 
 int Engine::open_camera () {
     cout << "Opening camera..."; 
@@ -37,19 +105,21 @@ void Engine::check_for_previous_frame () {
 
 void Engine::get_current_frame (int flip_image, float downsample_scale) {
     cap >> current_frame_color;
-    if (flip_image)
+    if (flip_image) {
         flip(current_frame_color, current_frame_color, 1);
+    }
     current_frame_float = convert_color_image_to_float(current_frame_color);
     current_frame_float = resize_image(current_frame_float, downsample_scale);
     check_for_previous_frame();
 }
 
-char Engine::display_image (string title, Mat image) {
+char Engine::display_image (string title, Mat image, float downsample_scale) {
+    if (downsample_scale != 0) {
+        image = resize_image(image, (1 / downsample_scale));
+    }
     imshow(title, image);
-    char key_press = waitKey(1);
 
-    if (key_press == 27)
-        destroyAllWindows();
+    char key_press = waitKey(1);
     return key_press;
 }
 
@@ -122,9 +192,27 @@ void Engine::compute_lk_flow (int window_dim) {
     }
 }
 
+// visualize LK flow, color = direction
+void Engine::visualize_lk_flow () {
+    int flow_threshold { 10 };
+    flow = Mat::zeros(current_frame_float.rows, current_frame_float.cols, CV_8UC3);
+    for (int r = 0; r < current_frame_float.rows; r++) {
+        for (int c = 0; c < current_frame_float.cols; c++) {
+            float x = x_flow.at<float>(r, c);
+            float y = y_flow.at<float>(r, c);
+            if (sqrtf32(pow(x, 2) + pow(y, 2)) > flow_threshold) {
+                Vec3b color = get_color(x, y);
+                flow.at<Vec3b>(r, c) = color;
+            }
+        }
+    }
+}
+
 void Engine::store_previous_frame () {
     previous_frame_float = current_frame_float.clone();
 }
 
-
+void Engine::destroy_all_windows () {
+    destroyAllWindows();
+}
 
