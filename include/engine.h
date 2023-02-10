@@ -4,6 +4,8 @@
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
 
+#include "particle.h"
+
 using namespace std;
 using namespace cv;
 
@@ -36,6 +38,8 @@ class Engine {
         void store_previous_frame ();
         void destroy_all_windows ();
         void release_cap ();
+
+        void draw_particles(Particle particles[], int num_of_particles);
 
     private:
         void check_for_previous_frame ();

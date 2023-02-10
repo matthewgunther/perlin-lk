@@ -154,8 +154,8 @@ int main () {
     // Mat previous_frame;
     // Mat previous_frame_scaled;
 
-    const siv::PerlinNoise::seed_type seed = 123456u;
-    const siv::PerlinNoise perlin { seed };
+    // const siv::PerlinNoise::seed_type seed = 123456u;
+    // const siv::PerlinNoise perlin { seed };
 
     float z { 0 };
     float z_offset { 0.2 };

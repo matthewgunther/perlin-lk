@@ -1,4 +1,6 @@
 #include "engine.h"
+#include "particle.h"
+
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
 
@@ -231,3 +233,8 @@ void Engine::release_cap () {
     cap.release();
 }
 
+void Engine::draw_particles (Particle particles[], int num_of_particles) {
+    for (int i = 0; i < num_of_particles; i++) {
+        circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, Scalar(255, 255, 255), 2);
+    }
+}
