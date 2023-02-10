@@ -35,6 +35,7 @@ class Engine {
 
         void store_previous_frame ();
         void destroy_all_windows ();
+        void release_cap ();
 
     private:
         void check_for_previous_frame ();

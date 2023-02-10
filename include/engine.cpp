@@ -82,6 +82,16 @@ Vec3b get_color(float x, float y) {
 }
 
 
+Mat draw_color_bar (Mat image) {
+    for (int r=0; r < int(image.rows / 20); r++) {
+        for (int c=0; c < int(image.cols / 8); c++) {
+            image.at<Vec3b>(r, c) = get_rgb_from_hsv((float)(int(c * 8 * 360 / image.cols)));
+        }
+    }
+    return image;
+}
+
+
 
 
 
@@ -206,6 +216,7 @@ void Engine::visualize_lk_flow () {
             }
         }
     }
+    flow = draw_color_bar(flow);
 }
 
 void Engine::store_previous_frame () {
@@ -214,5 +225,9 @@ void Engine::store_previous_frame () {
 
 void Engine::destroy_all_windows () {
     destroyAllWindows();
+}
+
+void Engine::release_cap () {
+    cap.release();
 }
 

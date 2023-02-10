@@ -18,16 +18,16 @@ float flow_threshold { 5 };
 int window_dim { 10 };
 
 
-Mat resize_image (Mat input_image, float scale) {
-    Mat output_image;
-    resize(input_image, output_image, Size(input_image.cols / scale, input_image.rows / scale));
-    return output_image;
-}
+// Mat resize_image (Mat input_image, float scale) {
+//     Mat output_image;
+//     resize(input_image, output_image, Size(input_image.cols / scale, input_image.rows / scale));
+//     return output_image;
+// }
 
-void show_image(string window_name, Mat image) {
-    image = resize_image(image, 1 / scale); 
-    imshow(window_name, image);
-}
+// void show_image(string window_name, Mat image) {
+//     image = resize_image(image, 1 / scale); 
+//     imshow(window_name, image);
+// }
 
 template <size_t N>
 void destroy_windows(string (&windows)[N]) {
@@ -43,89 +43,89 @@ void initialize_windows(string (&windows)[N]) {
     }
 }
 
-float map_atan_to_360_deg(float x, float y, float angle) {
-    if (x > 0) {
-        if (angle < 0) {
-            angle += 360.0f;
-        }
-    } else {
-        angle += 180.0f;
-    }
-    return angle;
-}
+// float map_atan_to_360_deg(float x, float y, float angle) {
+//     if (x > 0) {
+//         if (angle < 0) {
+//             angle += 360.0f;
+//         }
+//     } else {
+//         angle += 180.0f;
+//     }
+//     return angle;
+// }
 
-Vec3b get_rgb_from_hsv(float angle) {
+// Vec3b get_rgb_from_hsv(float angle) {
 
-    Vec3b color;
+//     Vec3b color;
     
-    float H = angle / 60.0f;
-    float V = 1.0f;
-    float S = 1.0f;
+//     float H = angle / 60.0f;
+//     float V = 1.0f;
+//     float S = 1.0f;
 
-    float C = V * S;
-    int X_rgb = (int)(C * (1 - fabs(fmod(H, 2.0f) - 1)) * 255.0f);
-    int C_rgb = (int)(C * 255.0f);
+//     float C = V * S;
+//     int X_rgb = (int)(C * (1 - fabs(fmod(H, 2.0f) - 1)) * 255.0f);
+//     int C_rgb = (int)(C * 255.0f);
 
-    if (H >= 0 & H < 1) {
-        color[0] = C_rgb;
-        color[1] = X_rgb;
-        color[2] = 0;
-    } else if (H >= 1 & H < 2) {
-        color[0] = X_rgb;
-        color[1] = C_rgb;
-        color[2] = 0;
-    } else if (H >= 2 & H < 3) {
-        color[0] = 0;
-        color[1] = C_rgb;
-        color[2] = X_rgb;
-    } else if (H >= 3 & H < 4) {
-        color[0] = 0;
-        color[1] = X_rgb;
-        color[2] = C_rgb;
-    } else if (H >= 4 & H < 5) {
-        color[0] = X_rgb;
-        color[1] = 0;
-        color[2] = C_rgb;
-    } else if (H >= 5 & H < 6) {
-        color[0] = C_rgb;
-        color[1] = 0;
-        color[2] = X_rgb;
-    }
+//     if (H >= 0 & H < 1) {
+//         color[0] = C_rgb;
+//         color[1] = X_rgb;
+//         color[2] = 0;
+//     } else if (H >= 1 & H < 2) {
+//         color[0] = X_rgb;
+//         color[1] = C_rgb;
+//         color[2] = 0;
+//     } else if (H >= 2 & H < 3) {
+//         color[0] = 0;
+//         color[1] = C_rgb;
+//         color[2] = X_rgb;
+//     } else if (H >= 3 & H < 4) {
+//         color[0] = 0;
+//         color[1] = X_rgb;
+//         color[2] = C_rgb;
+//     } else if (H >= 4 & H < 5) {
+//         color[0] = X_rgb;
+//         color[1] = 0;
+//         color[2] = C_rgb;
+//     } else if (H >= 5 & H < 6) {
+//         color[0] = C_rgb;
+//         color[1] = 0;
+//         color[2] = X_rgb;
+//     }
     
-    return color;
-}
+//     return color;
+// }
 
-Mat draw_color_bar (Mat image) {
-    for (int r=0; r < int(image.rows / 20); r++) {
-        for (int c=0; c < int(image.cols / 8); c++) {
-            image.at<Vec3b>(r, c) = get_rgb_from_hsv((float)(int(c * 8 * 360 / image.cols)));
-        }
-    }
-    return image;
-}
+// Mat draw_color_bar (Mat image) {
+//     for (int r=0; r < int(image.rows / 20); r++) {
+//         for (int c=0; c < int(image.cols / 8); c++) {
+//             image.at<Vec3b>(r, c) = get_rgb_from_hsv((float)(int(c * 8 * 360 / image.cols)));
+//         }
+//     }
+//     return image;
+// }
 
 
 int main () {
 
-    int num {1500};
-    Particle bubbles[num];
+    // int num {1500};
+    // Particle bubbles[num];
 
-    random_device rd; // obtain a random number from hardware
-    mt19937 gen(rd()); // seed the generator
-    uniform_int_distribution<> distr_pos(100, 900); // define the range
-    uniform_int_distribution<> distr_vec(-10, 10); // define the range
+    // random_device rd; // obtain a random number from hardware
+    // mt19937 gen(rd()); // seed the generator
+    // uniform_int_distribution<> distr_pos(100, 900); // define the range
+    // uniform_int_distribution<> distr_vec(-10, 10); // define the range
 
 
 
-    for (int i = 0; i < num; i++) {
-        bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
-        // bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
-        bubbles[i].vel.magnitude_limit = 60;
-        bubbles[i].acc.magnitude_limit = 100;
+    // for (int i = 0; i < num; i++) {
+    //     bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), 0, 0, 0, 0);
+    //     // bubbles[i].initialize_vectors(distr_pos(gen), distr_pos(gen), distr_vec(gen), distr_vec(gen), 0, 0);
+    //     bubbles[i].vel.magnitude_limit = 60;
+    //     bubbles[i].acc.magnitude_limit = 100;
 
-        bubbles[i].vel.dampening_coeff = 0.125;
-        bubbles[i].acc.dampening_coeff = 0.25;
-    }
+    //     bubbles[i].vel.dampening_coeff = 0.125;
+    //     bubbles[i].acc.dampening_coeff = 0.25;
+    // }
 
 
     string windows[] = {
@@ -151,8 +151,8 @@ int main () {
     // int cam_open = engine.open_camera();
     // cout << "cam open" << cam_open << endl;
 
-    Mat previous_frame;
-    Mat previous_frame_scaled;
+    // Mat previous_frame;
+    // Mat previous_frame_scaled;
 
     const siv::PerlinNoise::seed_type seed = 123456u;
     const siv::PerlinNoise perlin { seed };
@@ -203,44 +203,44 @@ int main () {
         // filter2D(current_frame_scaled, y_gradient, -1 , y_kernel, Point( -1, -1 ), 0, BORDER_DEFAULT);
 
 
-        // initialize flow matrices
-        Mat u = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
-        Mat v = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+        // // initialize flow matrices
+        // Mat u = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
+        // Mat v = Mat::ones(current_frame_scaled.rows, current_frame_scaled.cols, CV_32FC1);
 
-        for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
-            for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
+        // for (int r = window_dim; r < (current_frame_scaled.rows - window_dim); r++) {
+        //     for (int c = window_dim; c < (current_frame_scaled.cols - window_dim); c++) {
 
-                Mat Ax = x_gradient(
-                    Range(r - window_dim, r + window_dim + 1),
-                    Range(c - window_dim, c + window_dim + 1)
-                ).clone();
-                Mat Ay = y_gradient(
-                    Range(r - window_dim, r + window_dim + 1),
-                    Range(c - window_dim, c + window_dim + 1)
-                ).clone();
-                Mat b = t_gradient(
-                    Range(r - window_dim, r + window_dim + 1),
-                    Range(c - window_dim, c + window_dim + 1)
-                ).clone();
+        //         Mat Ax = x_gradient(
+        //             Range(r - window_dim, r + window_dim + 1),
+        //             Range(c - window_dim, c + window_dim + 1)
+        //         ).clone();
+        //         Mat Ay = y_gradient(
+        //             Range(r - window_dim, r + window_dim + 1),
+        //             Range(c - window_dim, c + window_dim + 1)
+        //         ).clone();
+        //         Mat b = t_gradient(
+        //             Range(r - window_dim, r + window_dim + 1),
+        //             Range(c - window_dim, c + window_dim + 1)
+        //         ).clone();
 
-                Ax = Ax.reshape(1, Ax.rows * Ax.cols);
-                Ay = Ay.reshape(1, Ay.rows * Ay.cols);
-                b = b.reshape(1, b.rows * b.cols);
+        //         Ax = Ax.reshape(1, Ax.rows * Ax.cols);
+        //         Ay = Ay.reshape(1, Ay.rows * Ay.cols);
+        //         b = b.reshape(1, b.rows * b.cols);
 
-                Mat A;
-                hconcat(Ax, Ay, A);
+        //         Mat A;
+        //         hconcat(Ax, Ay, A);
 
-                A.convertTo(A, CV_32FC1);
-                b.convertTo(b, CV_32FC1);
+        //         A.convertTo(A, CV_32FC1);
+        //         b.convertTo(b, CV_32FC1);
 
-                Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
-                nu = -10 * nu; // make negative to flip flow direction
+        //         Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
+        //         nu = -10 * nu; // make negative to flip flow direction
 
-                u.at<float>(r, c) = nu.at<float>(0, 0);
-                v.at<float>(r, c) = nu.at<float>(1, 0);
+        //         u.at<float>(r, c) = nu.at<float>(0, 0);
+        //         v.at<float>(r, c) = nu.at<float>(1, 0);
 
-            }
-        }
+        //     }
+        // }
 
 
 
@@ -310,14 +310,14 @@ int main () {
         imshow("Frame", current_frame_color);
 
 
-        char key_press = waitKey(10);
-        if (key_press==27)
-            break;
-        previous_frame = current_frame.clone();
-        previous_frame_scaled = current_frame_scaled.clone();
+        // char key_press = waitKey(10);
+        // if (key_press==27)
+        //     break;
+        // previous_frame = current_frame.clone();
+        // previous_frame_scaled = current_frame_scaled.clone();
     }
     
-    cap.release();
-    destroy_windows(windows);
-    return 0;
+    // cap.release();
+    // destroy_windows(windows);
+    // return 0;
 }
