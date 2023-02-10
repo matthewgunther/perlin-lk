@@ -41,6 +41,8 @@ class Engine {
 
         void draw_particles(Particle particles[], int num_of_particles);
 
+        void push_particles(Particle particles[], int num_of_particles, float downsample_scale, float flow_threshold);
+
     private:
         void check_for_previous_frame ();
         Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);

@@ -91,7 +91,7 @@ void FlowField::move_particles (
 
         for (int i = 0; i < num_of_particles; i++) {
             int padding {130};
-            float timestep { 0.6 };
+            float timestep { 0.2 };
 
             int arr_x = floor(particles[i].pos.x / downsample_scale / num_of_particles);
             int arr_y = floor(particles[i].pos.y / downsample_scale / num_of_particles);
@@ -104,29 +104,6 @@ void FlowField::move_particles (
             float fl_y = sin(noise_angle);
 
             particles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
-
-    
-
-            // float add_x = u.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
-            // float add_y = v.at<float>(int(bubbles[i].pos.y / scale), int(bubbles[i].pos.x / scale));
-
-
-            
-            // if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > flow_threshold) {
-
-            //     float acc_scale { 5 };
-
-            //     float angle = atanf32(add_y / add_x) * 180 / M_PI;
-            //     angle = map_atan_to_360_deg(add_x, add_y, angle); // maps arctan output to 360 degrees
-            //     Vec3b color = get_rgb_from_hsv(angle);
-            //     bubbles[i].acc.add(add_x * acc_scale, add_y * acc_scale); 
-            //     bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
-            //     circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 3, color, 2);
-
-            // } else {
-            //     bubbles[i].update(timestep, current_frame_color.cols, current_frame_color.rows, padding);
-            //     circle(current_frame_color, Point(int(bubbles[i].pos.x), int(bubbles[i].pos.y)), 3, Scalar(255, 255, 255), 2);
-            // }
 
             particles[i].update(
                 timestep, 

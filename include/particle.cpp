@@ -17,11 +17,13 @@ float check_window_bound(float value, float bound, float padding) {
 
 // vector method definitions
 void Particle::vec::add (float x_to_add, float y_to_add) {
-    if (isnanf(x_to_add) || abs(x_to_add) <= 1 || abs(x_to_add) > 100)
-        x_to_add = 0;
-    if (isnanf(y_to_add) || abs(y_to_add) <= 1 || abs(y_to_add) > 100)
-        y_to_add = 0;
 
+    if (isnanf(x_to_add) || abs(x_to_add) <= 1) {
+        x_to_add = 0;
+    }
+    if (isnanf(y_to_add) || abs(y_to_add) <= 1) {
+        y_to_add = 0;
+    }
     x += x_to_add;
     y += y_to_add;
     check_magnitude_limit();
