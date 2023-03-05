@@ -5,6 +5,18 @@
 
 using namespace std;
 
+
+// define macros for variables that stay constant
+#define DOWNSAMPLE_SCALE 10
+#define FLIP_IMAGE 1
+#define LK_WINDOW_DIM 10
+#define FLOW_THRESHOLD 10
+
+#define PERLIN_ARR_SCALE 2
+#define X_SCALAR 0.1
+#define Y_SCALAR 0.1
+#define Z_DELTA 0.01
+
 int main () {
     Engine en;
 
@@ -18,30 +30,31 @@ int main () {
 
         while (1) {
             char key_press;
-            float downsample_scale { 10 };
-            int flip_image { 1 };
-            int lk_window_dim { 10 };
-            float flow_threshold { 10 };
+            // move these outside the while loop
+            // keep as variables or make macro #defines at top of file
+            // float downsample_scale { 10 };
+            // int flip_image { 1 };
+            // int lk_window_dim { 10 };
+            // float flow_threshold { 10 };
 
-            int perlin_arr_scale { 2 };
-            float x_scalar { 0.1 };
-            float y_scalar { 0.1 };
-            float z_delta { 0.01 };
+            // int perlin_arr_scale { 2 };
+            // float x_scalar { 0.1 };
+            // float y_scalar { 0.1 };
+            // float z_delta { 0.01 };
 
-            
-
-            en.get_current_frame(flip_image, downsample_scale);
+        
+            en.get_current_frame(FLIP_IMAGE, DOWNSAMPLE_SCALE);
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
-            en.compute_lk_flow(lk_window_dim);
+            en.compute_lk_flow(LK_WINDOW_DIM);
 
 
             en.push_particles(
                 bubbles,
                 num_of_bubbles,
-                downsample_scale,
-                flow_threshold
+                DOWNSAMPLE_SCALE,
+                FLOW_THRESHOLD
             );
 
 
@@ -50,11 +63,11 @@ int main () {
                 num_of_bubbles,
                 en.current_frame_color.rows,
                 en.current_frame_color.cols,
-                perlin_arr_scale,
-                x_scalar,
-                y_scalar,
-                z_delta,
-                downsample_scale
+                PERLIN_ARR_SCALE,
+                X_SCALAR,
+                Y_SCALAR,
+                Z_DELTA,
+                DOWNSAMPLE_SCALE
             );
 
 
