@@ -68,7 +68,6 @@ void FlowField::move_particles (
 
         for (int i = 0; i < num_of_particles; i++) {
             int padding {130};
-            float timestep { 0.2 };
 
             int arr_x = floor(particles[i].pos.x / downsample_scale / num_of_particles);
             int arr_y = floor(particles[i].pos.y / downsample_scale / num_of_particles);
@@ -76,31 +75,18 @@ void FlowField::move_particles (
 
             float noise_angle = noise_arr[arr_y][arr_x];
 
-            float fl_scale { 10 };
-            float fl_x = cos(noise_angle);
-            float fl_y = sin(noise_angle);
+            float flow_x = cos(noise_angle);
+            float flow_y = sin(noise_angle);
 
-            // particles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
-
-            add(&particles[i].acc, (fl_x * fl_scale), (fl_y * fl_scale));
+            add(&particles[i].acc, (flow_x * FLOW_SCALE), (flow_y * FLOW_SCALE));
 
             particles[i].update(
-                timestep, 
                 cols, 
-                rows, 
-                padding
+                rows
             );
 
-            particles[i].acc.x = 0;
-            particles[i].acc.y = 0;
-            particles[i].vel.dampening();
-            // bubbles[i].acc.dampening();
+            dampen(&particles[i].vel);
+            dampen(&particles[i].acc);
         }
 
 }
-
-
-
-// void FlowField::initialize_perlin_array (int rows, int cols) {
-//     arr
-// }

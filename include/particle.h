@@ -5,8 +5,14 @@
 #include <opencv4/opencv2/opencv.hpp>
 
 using namespace cv;
-// #define DAMPENING_COEFF 0
 
+
+
+
+
+#define DAMPENING_COEFF 0
+#define TIMESTEP 0.2
+#define PADDING 130
 
 
 
@@ -26,7 +32,6 @@ class Particle {
             // move outside struct but keep public in the Particle class
             // void add (float x_to_add, float y_to_add);
             void dampening ();
-            void update (vec vector, float timestep);
             void check_magnitude_limit ();
         } pos, vel, acc;
         Vec3b color;
@@ -38,14 +43,13 @@ class Particle {
             float vel_x, float vel_y,
             float acc_x, float acc_y
         );
-        void update (float timestep, int window_width, int window_height, int padding);
-        void update_vec (Particle::vec* vec_one, Particle::vec* vec_two, float timestep);
-
+        void update (int window_width, int window_height);
+        
         Particle() {}  
 };
 
 void add(Particle::vec* vec_var, float x_to_add, float y_to_add);
-
-
+void update_vec (Particle::vec* vec_one, Particle::vec* vec_two);
+void dampen(Particle::vec* vec_var);
 
 #endif

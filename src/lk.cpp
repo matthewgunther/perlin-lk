@@ -6,6 +6,7 @@
 using namespace std;
 
 
+
 // define macros for variables that stay constant
 #define DOWNSAMPLE_SCALE 10
 #define FLIP_IMAGE 1
@@ -18,6 +19,7 @@ using namespace std;
 #define Z_DELTA 0.01
 
 #define NUM_OF_BUBBLES 1000
+
 
 
 int main () {

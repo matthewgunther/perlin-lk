@@ -5,11 +5,11 @@ using namespace std;
 
 
 // helper functions
-float check_window_bound(float value, float bound, float padding) {
-    if (value < padding) {
-        value += (bound - padding * 2);
-    } else if (value > (bound - padding)) {
-        value -= (bound - padding * 2);
+float check_window_bound(float value, float bound) {
+    if (value < PADDING) {
+        value += (bound - PADDING * 2);
+    } else if (value > (bound - PADDING)) {
+        value -= (bound - PADDING * 2);
     }
     return value;
 }
@@ -34,9 +34,9 @@ void Particle::vec::dampening () {
     y -= y * dampening_coeff;
 }
 
-void Particle::vec::update (vec vector, float timestep) {
-    x += vector.x * timestep;
-    y += vector.y * timestep;
+void dampen(Particle::vec* vec_var) {
+    vec_var->x = vec_var->x * DAMPENING_COEFF;
+    vec_var->y = vec_var->y * DAMPENING_COEFF;
 }
 
 void Particle::vec::check_magnitude_limit () {
@@ -71,15 +71,15 @@ void Particle::initialize_vectors(
     acc.y = acc_y;
 }
 
-void Particle::update_vec(Particle::vec* vec_one, Particle::vec* vec_two, float timestep){
-    vec_one->x += vec_two->x * timestep;
-    vec_one->y += vec_two->y * timestep;
+void update_vec(Particle::vec* vec_one, Particle::vec* vec_two){
+    vec_one->x += vec_two->x * TIMESTEP;
+    vec_one->y += vec_two->y * TIMESTEP;
 }
 
-void Particle::update(float timestep, int window_width, int window_height, int padding) {
-    update_vec(&pos, &vel, timestep);
-    update_vec(&vel, &acc, timestep);
-    pos.x = check_window_bound(pos.x, (float)window_width, (float)padding);
-    pos.y = check_window_bound(pos.y, (float)window_height, (float)padding);
+void Particle::update(int window_width, int window_height) {
+    update_vec(&pos, &vel);
+    update_vec(&vel, &acc);
+    pos.x = check_window_bound(pos.x, (float)window_width);
+    pos.y = check_window_bound(pos.y, (float)window_height);
     vel.check_magnitude_limit();
 }

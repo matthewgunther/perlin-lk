@@ -5,6 +5,12 @@
 #include "particle.h"
 #include "PerlinNoise.hpp"
 
+
+#define FLOW_SCALE 10
+#define PADDING 130
+#define TIMESTEP 0.2
+
+
 using namespace std;
 using namespace siv;
 
