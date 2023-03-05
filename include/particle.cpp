@@ -16,7 +16,7 @@ float check_window_bound(float value, float bound, float padding) {
 
 
 // vector method definitions
-void Particle::vec::add (float x_to_add, float y_to_add) {
+void add (Particle::vec* vec_var, float x_to_add, float y_to_add) {
 
     if (isnanf(x_to_add) || abs(x_to_add) <= 1) {
         x_to_add = 0;
@@ -24,9 +24,9 @@ void Particle::vec::add (float x_to_add, float y_to_add) {
     if (isnanf(y_to_add) || abs(y_to_add) <= 1) {
         y_to_add = 0;
     }
-    x += x_to_add;
-    y += y_to_add;
-    check_magnitude_limit();
+    vec_var->x += x_to_add;
+    vec_var->y += y_to_add;
+    vec_var->check_magnitude_limit();
 }
 
 void Particle::vec::dampening () {
@@ -71,9 +71,14 @@ void Particle::initialize_vectors(
     acc.y = acc_y;
 }
 
+void Particle::update_vec(Particle::vec* vec_one, Particle::vec* vec_two, float timestep){
+    vec_one->x += vec_two->x * timestep;
+    vec_one->y += vec_two->y * timestep;
+}
+
 void Particle::update(float timestep, int window_width, int window_height, int padding) {
-    pos.update(vel, timestep);
-    vel.update(acc, timestep);
+    update_vec(&pos, &vel, timestep);
+    update_vec(&vel, &acc, timestep);
     pos.x = check_window_bound(pos.x, (float)window_width, (float)padding);
     pos.y = check_window_bound(pos.y, (float)window_height, (float)padding);
     vel.check_magnitude_limit();

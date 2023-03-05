@@ -11,7 +11,6 @@ using namespace siv;
 class FlowField {
     public:
         int num_of_particles;
-        // Particle bubbles[num_of_particles];
 
 
     private:
@@ -21,7 +20,6 @@ class FlowField {
     
 
     public:
-        // FlowField (int num) : num_of_particles(num) {}
         void initialize_particles (Particle particles[], int num_of_particles);
         void test (Particle arr[]);
         void move_particles (

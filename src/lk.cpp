@@ -17,31 +17,24 @@ using namespace std;
 #define Y_SCALAR 0.1
 #define Z_DELTA 0.01
 
+#define NUM_OF_BUBBLES 1000
+
+
 int main () {
     Engine en;
 
     if (en.open_camera() == 0) {
 
-        int num_of_bubbles { 1000 };
-        Particle bubbles[num_of_bubbles];
+        Particle bubbles[NUM_OF_BUBBLES];        
 
         FlowField ff;
-        ff.initialize_particles(bubbles, num_of_bubbles);
+        ff.initialize_particles(bubbles, NUM_OF_BUBBLES);
+
+        int64_t start_tick = getTickCount();
+        int frame_counter = 0;
 
         while (1) {
             char key_press;
-            // move these outside the while loop
-            // keep as variables or make macro #defines at top of file
-            // float downsample_scale { 10 };
-            // int flip_image { 1 };
-            // int lk_window_dim { 10 };
-            // float flow_threshold { 10 };
-
-            // int perlin_arr_scale { 2 };
-            // float x_scalar { 0.1 };
-            // float y_scalar { 0.1 };
-            // float z_delta { 0.01 };
-
         
             en.get_current_frame(FLIP_IMAGE, DOWNSAMPLE_SCALE);
             en.compute_t_gradient();
@@ -52,15 +45,16 @@ int main () {
 
             en.push_particles(
                 bubbles,
-                num_of_bubbles,
+                NUM_OF_BUBBLES,
                 DOWNSAMPLE_SCALE,
                 FLOW_THRESHOLD
             );
 
 
+
             ff.move_particles(
                 bubbles,
-                num_of_bubbles,
+                NUM_OF_BUBBLES,
                 en.current_frame_color.rows,
                 en.current_frame_color.cols,
                 PERLIN_ARR_SCALE,
@@ -71,7 +65,24 @@ int main () {
             );
 
 
-            en.draw_particles(bubbles, num_of_bubbles);
+
+            en.draw_particles(bubbles, NUM_OF_BUBBLES);
+
+
+
+            frame_counter++;
+            if (frame_counter == 30) {   // Calculate and print FPS every 30 frames
+                int64_t end_tick = getTickCount();
+                double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
+                cout << "FPS: " << fps << endl;
+
+                // Reset counters
+                start_tick = end_tick;
+                frame_counter = 0;
+            }
+
+
+
 
             key_press = en.display_image("c", en.current_frame_color);
             if (key_press==27) {

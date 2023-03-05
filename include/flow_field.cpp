@@ -18,7 +18,11 @@ void FlowField::initialize_particles (Particle particles[], int num_of_particles
     uniform_int_distribution<> distr_pos(100, 900); // define the range
     uniform_int_distribution<> distr_vec(-10, 10); // define the range
 
+
+    // length of array = size of particles array divided by size of one particle object
+
     for (int i = 0; i < num_of_particles; i++) {
+
         particles[i].initialize_vectors(
             distr_pos(gen), 
             distr_pos(gen), 
@@ -35,33 +39,6 @@ void FlowField::initialize_particles (Particle particles[], int num_of_particles
         particles[i].acc.dampening_coeff = 0.25;
     }
 }
-
-
-void FlowField::test (Particle arr[]) {
-    // cout << perlin.octave3D_01((1 * 0.1), (1 * 0.1), 0, 4) << endl;
-    arr[1].pos.x = 16;
-}
-
-// // double** FlowField::construct_perlin_array (
-// //     int rows,
-// //     int cols,
-// //     float x_scalar, 
-// //     float y_scalar, 
-// //     float z_delta
-// // ) {
-
-// //     double** noise_arr;
-// //     for (int y = 0; y < rows; y++) {
-// //         for (int x = 0; x < cols; x++) {
-// //             noise_arr[y][x] = perlin.octave3D_01((x * x_scalar), (y * y_scalar), perlin_z, 4);
-// //         }
-// //     }
-// //     perlin_z += z_delta;
-
-// //     return noise_arr;
-
-// // }
-
 
 
 void FlowField::move_particles (
@@ -103,7 +80,9 @@ void FlowField::move_particles (
             float fl_x = cos(noise_angle);
             float fl_y = sin(noise_angle);
 
-            particles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
+            // particles[i].acc.add(fl_x * fl_scale, fl_y * fl_scale); 
+
+            add(&particles[i].acc, (fl_x * fl_scale), (fl_y * fl_scale));
 
             particles[i].update(
                 timestep, 

@@ -242,6 +242,10 @@ void Engine::draw_particles (Particle particles[], int num_of_particles) {
 void Engine::push_particles (Particle particles[], int num_of_particles, float downsample_scale, float flow_threshold) {
 
     for (int i = 0; i < num_of_particles; i++) {
+
+
+
+
         float add_x = x_flow.at<float>(
             int(particles[i].pos.y / downsample_scale), 
             int(particles[i].pos.x / downsample_scale)
@@ -251,18 +255,28 @@ void Engine::push_particles (Particle particles[], int num_of_particles, float d
             int(particles[i].pos.x / downsample_scale)
             );
 
+
+
+
         if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > flow_threshold) {
 
-            float acc_scale { 100 };
 
             float angle = atanf32(add_y / add_x) * 180 / M_PI;
             angle = map_atan_to_360_deg(add_x, add_y, angle); // maps arctan output to 360 degrees
-            // Vec3b color = get_rgb_from_hsv(angle);
-            particles[i].acc.add((add_x * acc_scale), (add_y * acc_scale)); 
-            // particles[i].acc.x = add_x * acc_scale;
 
-            // particles[i].acc.add()
+
+            // particles[i].acc.add((add_x * ACC_SCALE), (add_y * ACC_SCALE)); 
+
+            add(&particles[i].acc, (add_x * ACC_SCALE), (add_y * ACC_SCALE));
+
+            // particles[i]
+
+
             particles[i].color = get_rgb_from_hsv(angle);
+
+
+
+
             // circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, color, 2);
 
         } else {

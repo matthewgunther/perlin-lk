@@ -6,6 +6,8 @@
 
 #include "particle.h"
 
+#define ACC_SCALE 100
+
 using namespace std;
 using namespace cv;
 
