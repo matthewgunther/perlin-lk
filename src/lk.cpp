@@ -159,6 +159,17 @@ int main () {
     float z_offset { 0.2 };
 
     while (1) {
+
+        frame_counter++;
+        if (frame_counter == 15) {   // Calculate and print FPS every 30 frames
+            int64_t end_tick = getTickCount();
+            double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
+            cout << "FPS: " << fps << endl;
+
+            // Reset counters
+            start_tick = end_tick;
+            frame_counter = 0;
+        }
         
         Mat current_frame;
         Mat current_frame_color;
