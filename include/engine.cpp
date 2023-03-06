@@ -115,9 +115,9 @@ void Engine::check_for_previous_frame () {
     }
 }
 
-void Engine::get_current_frame (int flip_image, float downsample_scale) {
+void Engine::get_current_frame (float downsample_scale) {
     cap >> current_frame_color;
-    if (flip_image) {
+    if (FLIP_IMAGE) {
         flip(current_frame_color, current_frame_color, 1);
     }
     current_frame_float = convert_color_image_to_float(current_frame_color);
@@ -180,17 +180,17 @@ Mat Engine::get_gradient_roi_vector (int r, int c, int window_dim, Mat gradient)
     return roi;
 }
 
-void Engine::compute_lk_flow (int window_dim) {
+void Engine::compute_lk_flow () {
     // initialize flow matrices
     x_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
     y_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
 
-    for (int r = window_dim; r < (current_frame_float.rows - window_dim); r++) {
-        for (int c = window_dim; c < (current_frame_float.cols - window_dim); c++) {
+    for (int r = LK_WINDOW_DIM; r < (current_frame_float.rows - LK_WINDOW_DIM); r++) {
+        for (int c = LK_WINDOW_DIM; c < (current_frame_float.cols - LK_WINDOW_DIM); c++) {
             
-            Mat Ax = get_gradient_roi_vector(r, c, window_dim, x_gradient);
-            Mat Ay = get_gradient_roi_vector(r, c, window_dim, y_gradient);
-            Mat b = get_gradient_roi_vector(r, c, window_dim, t_gradient);
+            Mat Ax = get_gradient_roi_vector(r, c, LK_WINDOW_DIM, x_gradient);
+            Mat Ay = get_gradient_roi_vector(r, c, LK_WINDOW_DIM, y_gradient);
+            Mat b = get_gradient_roi_vector(r, c, LK_WINDOW_DIM, t_gradient);
 
             Mat A;
             hconcat(Ax, Ay, A);

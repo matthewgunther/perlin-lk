@@ -5,15 +5,11 @@
 
 using namespace std;
 
-// define macros for variables that stay constant
+// define macros to be used across modules
+// else macro should be defined in module header
 #define DOWNSAMPLE_SCALE 10
-#define FLIP_IMAGE 1
-#define LK_WINDOW_DIM 10
 
-#define PERLIN_ARR_SCALE 2
-#define X_SCALAR 0.1
-#define Y_SCALAR 0.1
-#define Z_DELTA 0.01
+
 
 #define NUM_OF_BUBBLES 1000
 
@@ -35,33 +31,26 @@ int main () {
         while (1) {
             
             // compute optial flow vectors
-            en.get_current_frame(FLIP_IMAGE, DOWNSAMPLE_SCALE);
+            en.get_current_frame(DOWNSAMPLE_SCALE);
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
-            en.compute_lk_flow(LK_WINDOW_DIM);
+            en.compute_lk_flow();
             
-            
+            // add optical flow acceleration to particles
             en.push_particles(
                 bubbles,
                 NUM_OF_BUBBLES,
                 DOWNSAMPLE_SCALE
             );
 
-
             ff.move_particles(
                 bubbles,
                 NUM_OF_BUBBLES,
                 en.current_frame_color.rows,
                 en.current_frame_color.cols,
-                PERLIN_ARR_SCALE,
-                X_SCALAR,
-                Y_SCALAR,
-                Z_DELTA,
                 DOWNSAMPLE_SCALE
             );
-
-
 
             en.draw_particles(bubbles, NUM_OF_BUBBLES);
 

@@ -8,6 +8,8 @@
 
 #define ACC_SCALE 1000
 #define FLOW_THRESHOLD 5
+#define FLIP_IMAGE 1
+#define LK_WINDOW_DIM 10
 
 using namespace std;
 using namespace cv;
@@ -30,12 +32,12 @@ class Engine {
 
     public:
         int open_camera ();
-        void get_current_frame (int flip_image = 0, float downsample_scale = 1);
+        void get_current_frame (float downsample_scale = 1);
         char display_image (string title, Mat image, float downsample_scale = 1);
         void compute_t_gradient ();
         void compute_x_gradient ();
         void compute_y_gradient ();
-        void compute_lk_flow (int window_dim);
+        void compute_lk_flow ();
         void visualize_lk_flow ();
 
         void store_previous_frame ();
