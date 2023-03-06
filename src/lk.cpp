@@ -32,6 +32,17 @@ int main () {
 
         while (1) {
             
+            frame_counter++;
+            if (frame_counter == 15) {   // Calculate and print FPS every 30 frames
+                int64_t end_tick = getTickCount();
+                double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
+                cout << "FPS: " << fps << endl;
+
+                // Reset counters
+                start_tick = end_tick;
+                frame_counter = 0;
+            }
+            
             // compute optial flow vectors
             en.get_current_frame(DOWNSAMPLE_SCALE);
             en.compute_t_gradient();
@@ -58,17 +69,6 @@ int main () {
             );
 
             en.draw_particles(bubbles, NUM_OF_BUBBLES);
-
-            frame_counter++;
-            if (frame_counter == 15) {   // Calculate and print FPS every 30 frames
-                int64_t end_tick = getTickCount();
-                double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
-                cout << "FPS: " << fps << endl;
-
-                // Reset counters
-                start_tick = end_tick;
-                frame_counter = 0;
-            }
 
             char key_press;
             key_press = en.display_image("Bubble Bender", en.current_frame_color);
