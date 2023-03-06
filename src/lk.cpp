@@ -158,6 +158,9 @@ int main () {
     float z { 0 };
     float z_offset { 0.2 };
 
+    int64_t start_tick = getTickCount();
+    int frame_counter = 0;
+
     while (1) {
 
         frame_counter++;
