@@ -14,6 +14,7 @@
 using namespace std;
 using namespace cv;
 
+
 class Engine {
     public:
         Mat current_frame_color;
@@ -29,28 +30,33 @@ class Engine {
         Mat x_flow;
         Mat y_flow;
 
-
     public:
-        int open_camera ();
-        void get_current_frame (float downsample_scale = 1);
-        char display_image (string title, Mat image, float downsample_scale = 1);
+        void compute_lk_flow ();
         void compute_t_gradient ();
         void compute_x_gradient ();
         void compute_y_gradient ();
-        void compute_lk_flow ();
-        void visualize_lk_flow ();
-
-        void store_previous_frame ();
         void destroy_all_windows ();
-        void release_cap ();
-
+        char display_image (string title, Mat image, float downsample_scale = 1);
         void draw_particles(Particle particles[], int num_of_particles);
-
+        void get_current_frame (float downsample_scale = 1);
+        int open_camera ();
         void push_particles(Particle particles[], int num_of_particles, float downsample_scale);
+        void release_cap ();
+        void store_previous_frame ();
+        void visualize_lk_flow ();
 
     private:
         void check_for_previous_frame ();
         Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);
 };
+
+
+Mat convert_color_image_to_float(Mat image);
+Mat draw_color_bar (Mat image);
+Vec3b get_rgb_from_hsv(float angle);
+Vec3b get_color(float x, float y);
+float map_atan_to_360_deg(float x, float y, float angle);
+Mat resize_image (Mat image, float scale);
+
 
 #endif
