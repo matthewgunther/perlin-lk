@@ -19,7 +19,6 @@ class Engine {
     public:
         Mat current_frame_color;
         Mat flow;
-    
     private:
         VideoCapture cap;
         Mat current_frame_float;
@@ -27,8 +26,13 @@ class Engine {
         Mat t_gradient;
         Mat x_gradient;
         Mat y_gradient;
+
         Mat x_flow;
         Mat y_flow;
+
+
+        Mat x_kernel;
+        Mat y_kernel;
 
     public:
         void compute_lk_flow ();
@@ -37,7 +41,9 @@ class Engine {
         void compute_y_gradient ();
         void destroy_all_windows ();
         char display_image (string title, Mat image, float downsample_scale = 1);
-        void draw_particles(Particle particles[], int num_of_particles);
+        void draw_particles (Particle particles[], int num_of_particles);
+        void initialize_kernels ();
+        void initialize_lk_arrays (int downsample_scale);
         void get_current_frame (float downsample_scale = 1);
         int open_camera ();
         void push_particles(Particle particles[], int num_of_particles, float downsample_scale);
@@ -51,11 +57,11 @@ class Engine {
 };
 
 
-Mat convert_color_image_to_float(Mat image);
+Mat convert_color_image_to_float (Mat image);
 Mat draw_color_bar (Mat image);
-Vec3b get_rgb_from_hsv(float angle);
-Vec3b get_color(float x, float y);
-float map_atan_to_360_deg(float x, float y, float angle);
+Vec3b get_rgb_from_hsv (float angle);
+Vec3b get_color (float x, float y);
+float map_atan_to_360_deg (float x, float y, float angle);
 Mat resize_image (Mat image, float scale);
 
 
