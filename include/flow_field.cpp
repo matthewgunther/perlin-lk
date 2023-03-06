@@ -23,17 +23,16 @@ void FlowField::initialize_particles (Particle particles[], int num_of_particles
 
     for (int i = 0; i < num_of_particles; i++) {
 
-        particles[i].initialize_vectors(
-            distr_pos(gen), 
-            distr_pos(gen), 
-            0, 0, 
-            // distr_vec(gen), distr_vec(gen),
-            0, 
-            0
-        );
 
-        particles[i].vel.magnitude_limit = 60;
-        particles[i].acc.magnitude_limit = 100;
+        particles[i].pos.x = distr_pos(gen);
+        particles[i].pos.y = distr_pos(gen);
+        particles[i].vel.x = 0;
+        particles[i].vel.y = 0;
+        particles[i].acc.x = 0;
+        particles[i].acc.y = 0;
+
+        particles[i].vel.magnitude_limit = 100;
+        particles[i].acc.magnitude_limit = 1000;
 
         particles[i].vel.dampening_coeff = 0.125;
         particles[i].acc.dampening_coeff = 0.25;
@@ -67,7 +66,6 @@ void FlowField::move_particles (
 
 
         for (int i = 0; i < num_of_particles; i++) {
-            int padding {130};
 
             int arr_x = floor(particles[i].pos.x / downsample_scale / num_of_particles);
             int arr_y = floor(particles[i].pos.y / downsample_scale / num_of_particles);
@@ -78,15 +76,19 @@ void FlowField::move_particles (
             float flow_x = cos(noise_angle);
             float flow_y = sin(noise_angle);
 
-            add(&particles[i].acc, (flow_x * FLOW_SCALE), (flow_y * FLOW_SCALE));
+            // cout << "f   " << particles[i].acc.x << endl;
+
+            // add(&particles[i].acc, (flow_x * FLOW_SCALE), (flow_y * FLOW_SCALE));
+
+            // cout << particles[i].acc.x << endl;
 
             particles[i].update(
                 cols, 
                 rows
             );
 
-            dampen(&particles[i].vel);
-            dampen(&particles[i].acc);
+            dampen(&particles[i].vel, VEL_DAMPEN_COEFF);
+            dampen(&particles[i].acc, ACC_DAMPEN_COEFF);
         }
 
 }

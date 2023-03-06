@@ -6,7 +6,8 @@
 
 #include "particle.h"
 
-#define ACC_SCALE 100
+#define ACC_SCALE 1000
+#define FLOW_THRESHOLD 5
 
 using namespace std;
 using namespace cv;
@@ -43,7 +44,7 @@ class Engine {
 
         void draw_particles(Particle particles[], int num_of_particles);
 
-        void push_particles(Particle particles[], int num_of_particles, float downsample_scale, float flow_threshold);
+        void push_particles(Particle particles[], int num_of_particles, float downsample_scale);
 
     private:
         void check_for_previous_frame ();

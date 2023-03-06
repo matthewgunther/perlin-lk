@@ -5,13 +5,10 @@
 
 using namespace std;
 
-
-
 // define macros for variables that stay constant
 #define DOWNSAMPLE_SCALE 10
 #define FLIP_IMAGE 1
 #define LK_WINDOW_DIM 10
-#define FLOW_THRESHOLD 10
 
 #define PERLIN_ARR_SCALE 2
 #define X_SCALAR 0.1
@@ -22,13 +19,13 @@ using namespace std;
 
 
 
+
 int main () {
     Engine en;
 
     if (en.open_camera() == 0) {
 
         Particle bubbles[NUM_OF_BUBBLES];        
-
         FlowField ff;
         ff.initialize_particles(bubbles, NUM_OF_BUBBLES);
 
@@ -36,22 +33,20 @@ int main () {
         int frame_counter = 0;
 
         while (1) {
-            char key_press;
-        
+            
+            // compute optial flow vectors
             en.get_current_frame(FLIP_IMAGE, DOWNSAMPLE_SCALE);
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
             en.compute_lk_flow(LK_WINDOW_DIM);
-
-
+            
+            
             en.push_particles(
                 bubbles,
                 NUM_OF_BUBBLES,
-                DOWNSAMPLE_SCALE,
-                FLOW_THRESHOLD
+                DOWNSAMPLE_SCALE
             );
-
 
 
             ff.move_particles(
@@ -70,8 +65,6 @@ int main () {
 
             en.draw_particles(bubbles, NUM_OF_BUBBLES);
 
-
-
             frame_counter++;
             if (frame_counter == 30) {   // Calculate and print FPS every 30 frames
                 int64_t end_tick = getTickCount();
@@ -84,8 +77,7 @@ int main () {
             }
 
 
-
-
+            char key_press;
             key_press = en.display_image("c", en.current_frame_color);
             if (key_press==27) {
                 en.destroy_all_windows();

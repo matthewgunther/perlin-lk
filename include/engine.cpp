@@ -239,13 +239,11 @@ void Engine::draw_particles (Particle particles[], int num_of_particles) {
     }
 }
 
-void Engine::push_particles (Particle particles[], int num_of_particles, float downsample_scale, float flow_threshold) {
+void Engine::push_particles (Particle particles[], int num_of_particles, float downsample_scale) {
 
     for (int i = 0; i < num_of_particles; i++) {
-
-
-
-
+        // get flow vector at the corresponding location of the particle
+        // in the downsampled flow vector array
         float add_x = x_flow.at<float>(
             int(particles[i].pos.y / downsample_scale), 
             int(particles[i].pos.x / downsample_scale)
@@ -253,40 +251,22 @@ void Engine::push_particles (Particle particles[], int num_of_particles, float d
         float add_y = y_flow.at<float>(
             int(particles[i].pos.y / downsample_scale), 
             int(particles[i].pos.x / downsample_scale)
-            );
+        );
 
-
-
-
-        if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > flow_threshold) {
-
-
+        // flow threshold reached, color with direction and add acceleration
+        if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > FLOW_THRESHOLD) {
             float angle = atanf32(add_y / add_x) * 180 / M_PI;
             angle = map_atan_to_360_deg(add_x, add_y, angle); // maps arctan output to 360 degrees
-
-
-            // particles[i].acc.add((add_x * ACC_SCALE), (add_y * ACC_SCALE)); 
-
             add(&particles[i].acc, (add_x * ACC_SCALE), (add_y * ACC_SCALE));
-
-            // particles[i]
-
-
             particles[i].color = get_rgb_from_hsv(angle);
-
-
-
-
-            // circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, color, 2);
-
-        } else {
+        } 
+        // threshold not reached, particle remains white
+        else {
             Vec3b color;
             color[0] = 255;
             color[1] = 255;
             color[2] = 255;
             particles[i].color = color;
-
-            // circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, Scalar(255, 255, 255), 2);
         }
     }
 }

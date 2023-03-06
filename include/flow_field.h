@@ -6,9 +6,12 @@
 #include "PerlinNoise.hpp"
 
 
-#define FLOW_SCALE 10
+#define FLOW_SCALE 100
 #define PADDING 130
 #define TIMESTEP 0.2
+
+#define VEL_DAMPEN_COEFF 0.125
+#define ACC_DAMPEN_COEFF 0.25
 
 
 using namespace std;
@@ -27,7 +30,6 @@ class FlowField {
 
     public:
         void initialize_particles (Particle particles[], int num_of_particles);
-        void test (Particle arr[]);
         void move_particles (
             Particle particles[], 
             int num_of_particles,

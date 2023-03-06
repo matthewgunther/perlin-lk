@@ -9,8 +9,8 @@ using namespace cv;
 
 
 
+#define MAGNITUDE_LIMIT 3000000000
 
-#define DAMPENING_COEFF 0
 #define TIMESTEP 0.2
 #define PADDING 130
 
@@ -31,18 +31,11 @@ class Particle {
 
             // move outside struct but keep public in the Particle class
             // void add (float x_to_add, float y_to_add);
-            void dampening ();
             void check_magnitude_limit ();
         } pos, vel, acc;
         Vec3b color;
 
     public:
-
-        void initialize_vectors(
-            float pos_x, float pos_y,
-            float vel_x, float vel_y,
-            float acc_x, float acc_y
-        );
         void update (int window_width, int window_height);
         
         Particle() {}  
@@ -50,6 +43,7 @@ class Particle {
 
 void add(Particle::vec* vec_var, float x_to_add, float y_to_add);
 void update_vec (Particle::vec* vec_one, Particle::vec* vec_two);
-void dampen(Particle::vec* vec_var);
+void dampen(Particle::vec* vec_var, float dampen_coeff);
+// void check_magnitude_limit(Particle::vec* vec_var);
 
 #endif
