@@ -26,20 +26,18 @@ class FlowField {
     public:
         int num_of_particles;
 
-
     private:
         const PerlinNoise::seed_type seed = 123456u;
         const PerlinNoise perlin { seed };
         float perlin_z { 0 };
-    
 
     public:
         void initialize_particles (Particle particles[], int num_of_particles);
         void move_particles (
             Particle particles[], 
             int num_of_particles,
-            int rows, 
-            int cols, 
+            int* rows, 
+            int* cols, 
             float downsample_scale
         );
 };

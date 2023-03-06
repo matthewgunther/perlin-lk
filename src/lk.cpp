@@ -8,12 +8,7 @@ using namespace std;
 // define macros to be used across modules
 // else macro should be defined in module header
 #define DOWNSAMPLE_SCALE 10
-
-
-
 #define NUM_OF_BUBBLES 1000
-
-
 
 
 int main () {
@@ -21,6 +16,7 @@ int main () {
 
     if (en.open_camera() == 0) {
 
+        // initialize particle properties
         Particle bubbles[NUM_OF_BUBBLES];        
         FlowField ff;
         ff.initialize_particles(bubbles, NUM_OF_BUBBLES);
@@ -44,11 +40,12 @@ int main () {
                 DOWNSAMPLE_SCALE
             );
 
+            // move particles according to perlin noise flow field
             ff.move_particles(
                 bubbles,
                 NUM_OF_BUBBLES,
-                en.current_frame_color.rows,
-                en.current_frame_color.cols,
+                &en.current_frame_color.rows,
+                &en.current_frame_color.cols,
                 DOWNSAMPLE_SCALE
             );
 
@@ -64,7 +61,6 @@ int main () {
                 start_tick = end_tick;
                 frame_counter = 0;
             }
-
 
             char key_press;
             key_press = en.display_image("c", en.current_frame_color);
