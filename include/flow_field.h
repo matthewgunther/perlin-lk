@@ -32,7 +32,11 @@ class FlowField {
         float perlin_z { 0 };
 
     public:
-        void initialize_particles (Particle particles[], int num_of_particles);
+        void initialize_particles (
+            Particle particles[], 
+            int num_of_particles,
+            unordered_map<int, vector<int>>& particle_hash
+        );
         void move_particles (
             Particle particles[], 
             int num_of_particles,

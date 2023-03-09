@@ -11,12 +11,21 @@
 using namespace std;
 
 
-void FlowField::initialize_particles (Particle particles[], int num_of_particles) {
+void FlowField::initialize_particles (
+    Particle particles[], 
+    int num_of_particles, 
+    unordered_map<int, vector<int>>& particle_hash
+    ) {
 
     random_device rd; // obtain a random number from hardware
     mt19937 gen(rd()); // seed the generator
     uniform_int_distribution<> distr_pos(100, 900); // define the range for positions
     uniform_int_distribution<> distr_vec(-10, 10); // define the range for velocities
+
+
+    particle_hash[1] = {1, 2};
+
+    cout << particle_hash[1][1] << endl;
 
     // assign initial values
     for (int i = 0; i < num_of_particles; i++) {
@@ -33,7 +42,11 @@ void FlowField::initialize_particles (Particle particles[], int num_of_particles
 
         particles[i].vel.dampening_coeff = 0.125;
         particles[i].acc.dampening_coeff = 0.25;
+
+
     }
+
+    particle_hash[1].push_back(6);
 }
 
 void FlowField::move_particles (

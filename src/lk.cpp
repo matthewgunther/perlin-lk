@@ -22,14 +22,20 @@ int main () {
         en.initialize_kernels();
 
 
+        unordered_map<int, vector<int>> bubble_hash;
+
         // initialize particle properties
         Particle bubbles[NUM_OF_BUBBLES];        
         FlowField ff;
-        ff.initialize_particles(bubbles, NUM_OF_BUBBLES);
+        ff.initialize_particles(bubbles, NUM_OF_BUBBLES, bubble_hash);
 
         int64_t start_tick = getTickCount();
         int frame_counter = 0;
 
+
+        cout << bubble_hash[1][2] << endl;
+
+        
         while (1) {
             
             frame_counter++;
@@ -48,9 +54,12 @@ int main () {
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
-            en.compute_lk_flow();
+            // en.compute_lk_flow();
 
-            en.visualize_lk_flow();
+
+            // compute lk and perlin flow
+            // en.image_operations(bubbles, NUM_OF_BUBBLES);
+
             
             // add optical flow acceleration to particles
             en.push_particles(

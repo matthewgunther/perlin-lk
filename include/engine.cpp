@@ -115,6 +115,9 @@ void Engine::compute_lk_flow () {
 
             x_flow.at<float>(r, c) = nu.at<float>(0, 0);
             y_flow.at<float>(r, c) = nu.at<float>(1, 0);
+
+
+            
         }
     }
 }
