@@ -8,7 +8,7 @@ using namespace std;
 // define macros to be used across modules
 // else macro should be defined in module header
 #define DOWNSAMPLE_SCALE 10
-#define NUM_OF_BUBBLES 1000
+#define NUM_OF_BUBBLES 100
 
 
 
@@ -27,15 +27,30 @@ int main () {
         // initialize particle properties
         Particle bubbles[NUM_OF_BUBBLES];        
         FlowField ff;
-        ff.initialize_particles(bubbles, NUM_OF_BUBBLES, bubble_hash);
+        ff.initialize_particles(
+            bubbles, 
+            NUM_OF_BUBBLES, 
+            bubble_hash, 
+            en.current_frame_color.rows,
+            en.current_frame_color.cols,
+            DOWNSAMPLE_SCALE
+        );
 
         int64_t start_tick = getTickCount();
         int frame_counter = 0;
 
 
-        cout << bubble_hash[1][2] << endl;
+        // cout << bubble_hash << endl;
 
-        
+        for (const auto& p : bubble_hash) {
+            cout << "Key: " << p.first << ", Value: ";
+            for (const auto& value : p.second) {
+                cout << value << " ";
+            }
+        cout << endl;
+    }
+
+
         while (1) {
             
             frame_counter++;

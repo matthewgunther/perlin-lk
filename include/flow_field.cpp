@@ -14,7 +14,10 @@ using namespace std;
 void FlowField::initialize_particles (
     Particle particles[], 
     int num_of_particles, 
-    unordered_map<int, vector<int>>& particle_hash
+    unordered_map<int, vector<int>>& particle_hash,
+    int rows,
+    int cols, 
+    float downsample_scale
     ) {
 
     random_device rd; // obtain a random number from hardware
@@ -23,9 +26,6 @@ void FlowField::initialize_particles (
     uniform_int_distribution<> distr_vec(-10, 10); // define the range for velocities
 
 
-    particle_hash[1] = {1, 2};
-
-    cout << particle_hash[1][1] << endl;
 
     // assign initial values
     for (int i = 0; i < num_of_particles; i++) {
@@ -43,10 +43,16 @@ void FlowField::initialize_particles (
         particles[i].vel.dampening_coeff = 0.125;
         particles[i].acc.dampening_coeff = 0.25;
 
+        
 
+        int key = floor(particles[i].pos.y * downsample_scale / cols) + floor(particles[i].pos.x * downsample_scale / rows);
+        if (particle_hash.find(key) == particle_hash.end()) {
+            // not found
+            particle_hash[key] = {i};
+        } else {
+            particle_hash[key].push_back(i);
+        }
     }
-
-    particle_hash[1].push_back(6);
 }
 
 void FlowField::move_particles (

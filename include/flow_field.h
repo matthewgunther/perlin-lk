@@ -35,7 +35,10 @@ class FlowField {
         void initialize_particles (
             Particle particles[], 
             int num_of_particles,
-            unordered_map<int, vector<int>>& particle_hash
+            unordered_map<int, vector<int>>& particle_hash,
+            int rows,
+            int cols,
+            float downsample_scale
         );
         void move_particles (
             Particle particles[], 
