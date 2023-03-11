@@ -5,11 +5,16 @@
 #include <opencv4/opencv2/opencv.hpp>
 
 #include "particle.h"
+#include "flow_field.h"
+
 
 #define ACC_SCALE 1000
 #define FLOW_THRESHOLD 5
 #define FLIP_IMAGE 1
 #define LK_WINDOW_DIM 10
+
+#define DOWNSAMPLE_SCALE 10
+#define NUM_OF_BUBBLES 10000
 
 using namespace std;
 using namespace cv;
@@ -18,10 +23,11 @@ using namespace cv;
 class Engine {
     public:
         Mat current_frame_color;
+        Mat current_frame_float;
         Mat flow;
+
     private:
         VideoCapture cap;
-        Mat current_frame_float;
         Mat previous_frame_float;
         Mat t_gradient;
         Mat x_gradient;
@@ -33,6 +39,8 @@ class Engine {
 
         Mat x_kernel;
         Mat y_kernel;
+
+
 
     public:
         void compute_lk_flow ();
@@ -57,7 +65,8 @@ class Engine {
             unordered_map<int, vector<int>>& particle_hash,
             int rows,
             int cols, 
-            float downsample_scale
+            float downsample_scale,
+            FlowField* p
         );
 
 

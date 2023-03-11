@@ -1,5 +1,7 @@
 #include "flow_field.h"
 #include "particle.h"
+#include "engine.h"
+
 #include "PerlinNoise.hpp"
 
 #define _USE_MATH_DEFINES
@@ -16,20 +18,26 @@ void FlowField::initialize_particles (
     int num_of_particles, 
     unordered_map<int, vector<int>>& particle_hash,
     int rows,
-    int cols, 
-    float downsample_scale
+    int cols
     ) {
 
     random_device rd; // obtain a random number from hardware
     mt19937 gen(rd()); // seed the generator
-    uniform_int_distribution<> distr_pos_x(0, cols);
-    uniform_int_distribution<> distr_pos_y(0, rows); 
+    uniform_int_distribution<> distr_pos_x(PADDING, cols-PADDING);
+    uniform_int_distribution<> distr_pos_y(PADDING, rows-PADDING); 
     uniform_int_distribution<> distr_vec(-10, 10); // define the range for velocities
 
 
 
     // assign initial values
     for (int i = 0; i < num_of_particles; i++) {
+
+        // white circle
+        Vec3b color;
+        color[0] = 255;
+        color[1] = 255;
+        color[2] = 255;
+        particles[i].color = color;
 
         particles[i].pos.x = distr_pos_x(gen);
         particles[i].pos.y = distr_pos_y(gen);
@@ -45,9 +53,9 @@ void FlowField::initialize_particles (
         particles[i].acc.dampening_coeff = 0.25;
 
         // linear index for each point
-        int key = floor(particles[i].pos.y * downsample_scale / rows)
-            * floor(downsample_scale / cols) 
-            + floor(particles[i].pos.x * downsample_scale / cols);
+        int key = floor(particles[i].pos.y / DOWNSAMPLE_SCALE)
+            * floor(cols / DOWNSAMPLE_SCALE) 
+            + floor(particles[i].pos.x / DOWNSAMPLE_SCALE);
 
         if (particle_hash.find(key) == particle_hash.end()) {
             // not found
@@ -68,7 +76,7 @@ void FlowField::move_particles (
         
     int x_lim = floor(*rows / PERLIN_ARR_SCALE);
     int y_lim = floor(*cols / PERLIN_ARR_SCALE);
-
+    
     // compute perlin flow field
     double noise_arr[x_lim][y_lim];
     for (int y = 0; y < x_lim; y++) {
@@ -82,8 +90,8 @@ void FlowField::move_particles (
     for (int i = 0; i < num_of_particles; i++) {
         
         // get flow vector from flow field
-        int arr_x = floor(particles[i].pos.x / downsample_scale / num_of_particles);
-        int arr_y = floor(particles[i].pos.y / downsample_scale / num_of_particles);
+        int arr_x = floor(particles[i].pos.x / DOWNSAMPLE_SCALE / num_of_particles);
+        int arr_y = floor(particles[i].pos.y / DOWNSAMPLE_SCALE / num_of_particles);
         float noise_angle = noise_arr[arr_y][arr_x];
         float flow_x = cos(noise_angle);
         float flow_y = sin(noise_angle);

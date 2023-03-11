@@ -7,7 +7,6 @@
 
 
 #define FLOW_SCALE 100
-#define PADDING 130
 #define TIMESTEP 0.2
 
 #define PERLIN_ARR_SCALE 2
@@ -26,7 +25,7 @@ class FlowField {
     public:
         int num_of_particles;
 
-    private:
+    // private:
         const PerlinNoise::seed_type seed = 123456u;
         const PerlinNoise perlin { seed };
         float perlin_z { 0 };
@@ -37,8 +36,7 @@ class FlowField {
             int num_of_particles,
             unordered_map<int, vector<int>>& particle_hash,
             int rows,
-            int cols,
-            float downsample_scale
+            int cols
         );
         void move_particles (
             Particle particles[], 

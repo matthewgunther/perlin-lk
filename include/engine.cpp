@@ -186,6 +186,10 @@ void Engine::initialize_kernels () {
 void Engine::initialize_lk_arrays (int downsample_scale) {
     x_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
     y_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
+
+    // compute perlin flow field
+    // na = double na[current_frame_float.rows][current_frame_float.cols];
+
 }
 
 void Engine::get_current_frame (float downsample_scale) {
@@ -196,7 +200,6 @@ void Engine::get_current_frame (float downsample_scale) {
     current_frame_float = convert_color_image_to_float(current_frame_color);
     current_frame_float = resize_image(current_frame_float, downsample_scale);
 
-    cout << "shape " << current_frame_float.rows << " " << current_frame_float.cols << endl;
     check_for_previous_frame();
 }
 
@@ -291,21 +294,123 @@ void Engine::lk_hash (
     unordered_map<int, vector<int>>& particle_hash,
     int rows,
     int cols, 
-    float downsample_scale
+    float downsample_scale,
+    FlowField* p
     ) {
+
+    
+
+
+    // FlowField::get_array(noise_arr);
+    p->perlin_z += Z_DELTA*1.2;
+
     
     for (auto const& pair : particle_hash) {
-        cout << "Key: " << pair.first << "  Values: ";
 
-        for (auto const& value : pair.second) {
+        int key = pair.first;
+        
+
+        // coordinates at downsampled
+        int x = key % current_frame_float.cols;
+        int y = (key - x) / current_frame_float.cols;
+
+
+        double noise_angle = p->perlin.octave3D_01(
+                (x * X_SCALAR), 
+                (y * Y_SCALAR), 
+                p->perlin_z, 
+                4
+            ) * M_PI * 4;
+        float flow_x = cos(noise_angle);
+        float flow_y = sin(noise_angle);
 
 
 
 
-            cout << value << " ";
+
+        // lk flow
+        // y, x
+
+        // cout <<  " x y " << x << " " << y << endl;
+        // cout <<  " r c " << x_gradient.rows << " " << x_gradient.cols << endl;
+        
+        Mat Ax = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, x_gradient);
+        Mat Ay = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, y_gradient);
+        Mat b = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, t_gradient);
+
+        Mat A;
+        hconcat(Ax, Ay, A);
+
+        Mat nu = (A.t() * A).inv() * A.t() * b; // compute flow vector
+        nu = -10 * nu; // make negative to flip flow direction
+
+        float add_x = nu.at<float>(0, 0);
+        float add_y = nu.at<float>(1, 0);
+
+
+
+
+        
+
+
+
+
+
+
+        for (auto const& i : pair.second) {
+
+
+
+            // flow threshold reached, color with direction and add acceleration
+            if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > FLOW_THRESHOLD) {
+                float angle = atanf32(add_y / add_x) * 180 / M_PI;
+                angle = map_atan_to_360_deg(add_x, add_y, angle); // maps arctan output to 360 degrees
+                add(&particles[i].acc, (add_x * ACC_SCALE), (add_y * ACC_SCALE));
+                particles[i].color = get_rgb_from_hsv(angle);
+            } 
+            // threshold not reached, particle remains white
+            else {
+                Vec3b color;
+                color[0] = 255;
+                color[1] = 255;
+                color[2] = 255;
+                particles[i].color = color;
+            }
+            
+
+            
+
+            // add optical flow acceleration, user "pushing" particles
+            add(&particles[i].acc, (flow_x * FLOW_SCALE), (flow_y * FLOW_SCALE));
+            // update physics
+            update_vec(&particles[i].vel, &particles[i].acc);
+            update_vec(&particles[i].pos, &particles[i].vel);
+            // keep particles in window
+            check_window_bound(&particles[i].pos, current_frame_color.cols, current_frame_color.rows);
+            // keep particles within speed range
+            check_magnitude_limit(&particles[i].vel);
+            check_magnitude_limit(&particles[i].acc);
+            // dampen the motion of particles after push
+            dampen(&particles[i].vel, VEL_DAMPEN_COEFF);
+            dampen(&particles[i].acc, ACC_DAMPEN_COEFF);
+
         }
 
-        cout << endl;
     }
 
+    particle_hash.clear();
+
+    for (int i = 0; i < num_of_particles; i++) {
+        // linear index for each point
+        int key = floor(particles[i].pos.y / downsample_scale)
+            * floor(cols / downsample_scale) 
+            + floor(particles[i].pos.x / downsample_scale);
+
+        if (particle_hash.find(key) == particle_hash.end()) {
+            // not found
+            particle_hash[key] = {i};
+        } else {
+            particle_hash[key].push_back(i);
+        }
+    }
 }
