@@ -7,8 +7,8 @@ using namespace std;
 
 // define macros to be used across modules
 // else macro should be defined in module header
-#define DOWNSAMPLE_SCALE 10
-#define NUM_OF_BUBBLES 100
+#define DOWNSAMPLE_SCALE 100
+#define NUM_OF_BUBBLES 1000
 
 
 
@@ -40,18 +40,18 @@ int main () {
         int frame_counter = 0;
 
 
-        // cout << bubble_hash << endl;
-
-        for (const auto& p : bubble_hash) {
-            cout << "Key: " << p.first << ", Value: ";
-            for (const auto& value : p.second) {
-                cout << value << " ";
-            }
-        cout << endl;
-    }
+    //     // to view hashmap
+    //     for (const auto& p : bubble_hash) {
+    //         cout << "Key: " << p.first << ", Value: ";
+    //         for (const auto& value : p.second) {
+    //             cout << value << " ";
+    //         }
+    //     cout << endl;
+    //     }
 
 
         while (1) {
+
             
             frame_counter++;
             if (frame_counter == 15) {   // Calculate and print FPS every 30 frames
@@ -72,16 +72,28 @@ int main () {
             // en.compute_lk_flow();
 
 
+
+
+            en.lk_hash(
+                bubbles,
+                NUM_OF_BUBBLES,
+                bubble_hash, 
+                en.current_frame_color.rows,
+                en.current_frame_color.cols,
+                DOWNSAMPLE_SCALE
+            );
+
+
             // compute lk and perlin flow
             // en.image_operations(bubbles, NUM_OF_BUBBLES);
 
             
             // add optical flow acceleration to particles
-            en.push_particles(
-                bubbles,
-                NUM_OF_BUBBLES,
-                DOWNSAMPLE_SCALE
-            );
+            // en.push_particles(
+            //     bubbles,
+            //     NUM_OF_BUBBLES,
+            //     DOWNSAMPLE_SCALE
+            // );
 
             // move particles according to perlin noise flow field
             ff.move_particles(
@@ -93,7 +105,6 @@ int main () {
             );
 
             en.draw_particles(bubbles, NUM_OF_BUBBLES);
-
             char key_press;
             key_press = en.display_image("Bubble Bender", en.current_frame_color);
             if (key_press==27) {

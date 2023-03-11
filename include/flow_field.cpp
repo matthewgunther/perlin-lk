@@ -22,7 +22,8 @@ void FlowField::initialize_particles (
 
     random_device rd; // obtain a random number from hardware
     mt19937 gen(rd()); // seed the generator
-    uniform_int_distribution<> distr_pos(100, 900); // define the range for positions
+    uniform_int_distribution<> distr_pos_x(0, cols);
+    uniform_int_distribution<> distr_pos_y(0, rows); 
     uniform_int_distribution<> distr_vec(-10, 10); // define the range for velocities
 
 
@@ -30,8 +31,8 @@ void FlowField::initialize_particles (
     // assign initial values
     for (int i = 0; i < num_of_particles; i++) {
 
-        particles[i].pos.x = distr_pos(gen);
-        particles[i].pos.y = distr_pos(gen);
+        particles[i].pos.x = distr_pos_x(gen);
+        particles[i].pos.y = distr_pos_y(gen);
         particles[i].vel.x = 0;
         particles[i].vel.y = 0;
         particles[i].acc.x = 0;
@@ -43,9 +44,11 @@ void FlowField::initialize_particles (
         particles[i].vel.dampening_coeff = 0.125;
         particles[i].acc.dampening_coeff = 0.25;
 
-        
+        // linear index for each point
+        int key = floor(particles[i].pos.y * downsample_scale / rows)
+            * floor(downsample_scale / cols) 
+            + floor(particles[i].pos.x * downsample_scale / cols);
 
-        int key = floor(particles[i].pos.y * downsample_scale / cols) + floor(particles[i].pos.x * downsample_scale / rows);
         if (particle_hash.find(key) == particle_hash.end()) {
             // not found
             particle_hash[key] = {i};

@@ -166,6 +166,7 @@ char Engine::display_image (string title, Mat image, float downsample_scale) {
 
 void Engine::draw_particles (Particle particles[], int num_of_particles) {
     for (int i = 0; i < num_of_particles; i++) {
+        // x is columns, y is rows
         circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, particles[i].color, 2);
     }
 }
@@ -194,6 +195,8 @@ void Engine::get_current_frame (float downsample_scale) {
     }
     current_frame_float = convert_color_image_to_float(current_frame_color);
     current_frame_float = resize_image(current_frame_float, downsample_scale);
+
+    cout << "shape " << current_frame_float.rows << " " << current_frame_float.cols << endl;
     check_for_previous_frame();
 }
 
@@ -274,4 +277,35 @@ void Engine::visualize_lk_flow () {
         }
     }
     flow = draw_color_bar(flow);
+}
+
+
+
+
+
+
+
+void Engine::lk_hash (
+    Particle particles[], 
+    int num_of_particles, 
+    unordered_map<int, vector<int>>& particle_hash,
+    int rows,
+    int cols, 
+    float downsample_scale
+    ) {
+    
+    for (auto const& pair : particle_hash) {
+        cout << "Key: " << pair.first << "  Values: ";
+
+        for (auto const& value : pair.second) {
+
+
+
+
+            cout << value << " ";
+        }
+
+        cout << endl;
+    }
+
 }

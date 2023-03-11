@@ -51,6 +51,16 @@ class Engine {
         void store_previous_frame ();
         void visualize_lk_flow ();
 
+        void lk_hash (
+            Particle particles[], 
+            int num_of_particles, 
+            unordered_map<int, vector<int>>& particle_hash,
+            int rows,
+            int cols, 
+            float downsample_scale
+        );
+
+
     private:
         void check_for_previous_frame ();
         Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);
