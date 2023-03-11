@@ -17,8 +17,8 @@ int main () {
     
     if (en.open_camera() == 0) {
 
-        en.get_current_frame(DOWNSAMPLE_SCALE);
-        en.initialize_lk_arrays(DOWNSAMPLE_SCALE);
+        en.get_current_frame();
+        en.initialize_lk_arrays();
         en.initialize_kernels();
 
 
@@ -29,7 +29,6 @@ int main () {
         FlowField ff;
         ff.initialize_particles(
             bubbles, 
-            NUM_OF_BUBBLES, 
             bubble_hash, 
             en.current_frame_color.rows,
             en.current_frame_color.cols
@@ -71,7 +70,7 @@ int main () {
 
 
             // compute optial flow vectors
-            en.get_current_frame(DOWNSAMPLE_SCALE);
+            en.get_current_frame();
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
@@ -87,11 +86,9 @@ int main () {
 
             en.lk_hash(
                 bubbles,
-                NUM_OF_BUBBLES,
                 bubble_hash, 
                 en.current_frame_color.rows,
                 en.current_frame_color.cols,
-                DOWNSAMPLE_SCALE,
                 &ff
             );
 
@@ -103,25 +100,11 @@ int main () {
             // en.image_operations(bubbles, NUM_OF_BUBBLES);
 
             
-            // add optical flow acceleration to particles
-            // en.push_particles(
-            //     bubbles,
-            //     NUM_OF_BUBBLES,
-            //     DOWNSAMPLE_SCALE
-            // );
 
-            // move particles according to perlin noise flow field
-            // ff.move_particles(
-            //     bubbles,
-            //     NUM_OF_BUBBLES,
-            //     &en.current_frame_color.rows,
-            //     &en.current_frame_color.cols,
-            //     DOWNSAMPLE_SCALE
-            // );
 
-            en.draw_particles(bubbles, NUM_OF_BUBBLES);
+            en.draw_particles(bubbles);
             char key_press;
-            key_press = en.display_image("Bubble Bender", en.current_frame_color);
+            key_press = en.display_image("Bubble Bender", en.current_frame_color, 0);
             // en.visualize_lk_flow();
             // key_press = en.display_image("Flow", en.flow, DOWNSAMPLE_SCALE);
             if (key_press==27) {

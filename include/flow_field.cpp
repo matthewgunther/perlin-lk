@@ -15,7 +15,6 @@ using namespace std;
 
 void FlowField::initialize_particles (
     Particle particles[], 
-    int num_of_particles, 
     unordered_map<int, vector<int>>& particle_hash,
     int rows,
     int cols
@@ -30,7 +29,7 @@ void FlowField::initialize_particles (
 
 
     // assign initial values
-    for (int i = 0; i < num_of_particles; i++) {
+    for (int i = 0; i < NUM_OF_BUBBLES; i++) {
 
         // white circle
         Vec3b color;
@@ -70,8 +69,7 @@ void FlowField::move_particles (
     Particle particles[],
     int num_of_particles,
     int* rows, 
-    int* cols, 
-    float downsample_scale
+    int* cols
     ) {
         
     int x_lim = floor(*rows / PERLIN_ARR_SCALE);

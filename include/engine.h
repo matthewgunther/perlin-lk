@@ -48,24 +48,22 @@ class Engine {
         void compute_x_gradient ();
         void compute_y_gradient ();
         void destroy_all_windows ();
-        char display_image (string title, Mat image, float downsample_scale = 1);
-        void draw_particles (Particle particles[], int num_of_particles);
+        char display_image (string title, Mat image, float resize_scale);
+        void draw_particles (Particle particles[]);
         void initialize_kernels ();
-        void initialize_lk_arrays (int downsample_scale);
-        void get_current_frame (float downsample_scale = 1);
+        void initialize_lk_arrays ();
+        void get_current_frame ();
         int open_camera ();
-        void push_particles(Particle particles[], int num_of_particles, float downsample_scale);
+        void push_particles(Particle particles[]);
         void release_cap ();
         void store_previous_frame ();
         void visualize_lk_flow ();
 
         void lk_hash (
             Particle particles[], 
-            int num_of_particles, 
             unordered_map<int, vector<int>>& particle_hash,
             int rows,
             int cols, 
-            float downsample_scale,
             FlowField* p
         );
 

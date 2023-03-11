@@ -154,9 +154,10 @@ void Engine::destroy_all_windows () {
     destroyAllWindows();
 }
 
-char Engine::display_image (string title, Mat image, float downsample_scale) {
-    if (downsample_scale != 0) {
-        image = resize_image(image, (1 / downsample_scale));
+char Engine::display_image (string title, Mat image, float resize_scale=0) {
+
+    if (resize_scale != 0) {
+        image = resize_image(image, (1 / resize_scale));
     }
     imshow(title, image);
 
@@ -164,8 +165,8 @@ char Engine::display_image (string title, Mat image, float downsample_scale) {
     return key_press;
 }
 
-void Engine::draw_particles (Particle particles[], int num_of_particles) {
-    for (int i = 0; i < num_of_particles; i++) {
+void Engine::draw_particles (Particle particles[]) {
+    for (int i = 0; i < NUM_OF_BUBBLES; i++) {
         // x is columns, y is rows
         circle(current_frame_color, Point(int(particles[i].pos.x), int(particles[i].pos.y)), 3, particles[i].color, 2);
     }
@@ -183,7 +184,7 @@ void Engine::initialize_kernels () {
     y_kernel.at<float>(2, 0) = 1.0f;
 }
 
-void Engine::initialize_lk_arrays (int downsample_scale) {
+void Engine::initialize_lk_arrays () {
     x_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
     y_flow = Mat::ones(current_frame_float.rows, current_frame_float.cols, CV_32FC1);
 
@@ -192,13 +193,13 @@ void Engine::initialize_lk_arrays (int downsample_scale) {
 
 }
 
-void Engine::get_current_frame (float downsample_scale) {
+void Engine::get_current_frame () {
     cap >> current_frame_color;
     if (FLIP_IMAGE) {
         flip(current_frame_color, current_frame_color, 1);
     }
     current_frame_float = convert_color_image_to_float(current_frame_color);
-    current_frame_float = resize_image(current_frame_float, downsample_scale);
+    current_frame_float = resize_image(current_frame_float, DOWNSAMPLE_SCALE);
 
     check_for_previous_frame();
 }
@@ -225,18 +226,18 @@ int Engine::open_camera () {
     
 }
 
-void Engine::push_particles (Particle particles[], int num_of_particles, float downsample_scale) {
+void Engine::push_particles (Particle particles[]) {
 
-    for (int i = 0; i < num_of_particles; i++) {
+    for (int i = 0; i < NUM_OF_BUBBLES; i++) {
         // get flow vector at the corresponding location of the particle
         // in the downsampled flow vector array
         float add_x = x_flow.at<float>(
-            int(particles[i].pos.y / downsample_scale), 
-            int(particles[i].pos.x / downsample_scale)
+            int(particles[i].pos.y / DOWNSAMPLE_SCALE), 
+            int(particles[i].pos.x / DOWNSAMPLE_SCALE)
         );
         float add_y = y_flow.at<float>(
-            int(particles[i].pos.y / downsample_scale), 
-            int(particles[i].pos.x / downsample_scale)
+            int(particles[i].pos.y / DOWNSAMPLE_SCALE), 
+            int(particles[i].pos.x / DOWNSAMPLE_SCALE)
         );
 
         // flow threshold reached, color with direction and add acceleration
@@ -290,11 +291,9 @@ void Engine::visualize_lk_flow () {
 
 void Engine::lk_hash (
     Particle particles[], 
-    int num_of_particles, 
     unordered_map<int, vector<int>>& particle_hash,
     int rows,
     int cols, 
-    float downsample_scale,
     FlowField* p
     ) {
 
@@ -400,11 +399,11 @@ void Engine::lk_hash (
 
     particle_hash.clear();
 
-    for (int i = 0; i < num_of_particles; i++) {
+    for (int i = 0; i < NUM_OF_BUBBLES; i++) {
         // linear index for each point
-        int key = floor(particles[i].pos.y / downsample_scale)
-            * floor(cols / downsample_scale) 
-            + floor(particles[i].pos.x / downsample_scale);
+        int key = floor(particles[i].pos.y / DOWNSAMPLE_SCALE)
+            * floor(cols / DOWNSAMPLE_SCALE) 
+            + floor(particles[i].pos.x / DOWNSAMPLE_SCALE);
 
         if (particle_hash.find(key) == particle_hash.end()) {
             // not found
