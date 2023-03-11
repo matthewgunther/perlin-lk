@@ -9,7 +9,27 @@ using namespace std;
 // else macro should be defined in module header
 
 
+struct frame_counter {
+    public:
+        int frame_counter { 0 };
+        int64_t start_tick { getTickCount() };
+    
+    void print_fps () {
 
+ 
+        if (frame_counter == 30) {   // Calculate and print FPS every 30 frames
+            int64_t end_tick = getTickCount();
+            double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
+            cout << "FPS: " << fps << endl;
+
+            // Reset counters
+            start_tick = end_tick;
+            frame_counter = 0;
+        }
+
+    }
+    
+};
 
 
 int main () {
@@ -34,41 +54,17 @@ int main () {
             en.current_frame_color.cols
         );
 
-        int64_t start_tick = getTickCount();
-        int frame_counter = 0;
-
-
-
-
-
-
-    //     // to view hashmap
-    //     for (const auto& p : bubble_hash) {
-    //         cout << "Key: " << p.first << ", Value: ";
-    //         for (const auto& value : p.second) {
-    //             cout << value << " ";
-    //         }
-    //     cout << endl;
-    //     }
-
+        
+        frame_counter fc;
 
 
         while (1) {
 
+            fc.frame_counter++;
+            fc.print_fps();
+
             
-            frame_counter++;
-            if (frame_counter == 15) {   // Calculate and print FPS every 30 frames
-                int64_t end_tick = getTickCount();
-                double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
-                cout << "FPS: " << fps << endl;
-
-                // Reset counters
-                start_tick = end_tick;
-                frame_counter = 0;
-            }
             
-
-
             // compute optial flow vectors
             en.get_current_frame();
             en.compute_t_gradient();
@@ -77,27 +73,11 @@ int main () {
             // en.compute_lk_flow();
 
 
-
-
-
-            // const int& rows_c = en.current_frame_float.rows;
-            // const int& cols_c = en.current_frame_float.cols;
-            // double na[rows_c][cols_c];
-
             en.lk_hash(
                 bubbles,
                 bubble_hash, 
-                en.current_frame_color.rows,
-                en.current_frame_color.cols,
                 &ff
             );
-
-
-
-
-
-            // compute lk and perlin flow
-            // en.image_operations(bubbles, NUM_OF_BUBBLES);
 
             
 

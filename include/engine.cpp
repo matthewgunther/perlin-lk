@@ -292,8 +292,6 @@ void Engine::visualize_lk_flow () {
 void Engine::lk_hash (
     Particle particles[], 
     unordered_map<int, vector<int>>& particle_hash,
-    int rows,
-    int cols, 
     FlowField* p
     ) {
 
@@ -402,7 +400,7 @@ void Engine::lk_hash (
     for (int i = 0; i < NUM_OF_BUBBLES; i++) {
         // linear index for each point
         int key = floor(particles[i].pos.y / DOWNSAMPLE_SCALE)
-            * floor(cols / DOWNSAMPLE_SCALE) 
+            * floor(current_frame_color.cols / DOWNSAMPLE_SCALE) 
             + floor(particles[i].pos.x / DOWNSAMPLE_SCALE);
 
         if (particle_hash.find(key) == particle_hash.end()) {

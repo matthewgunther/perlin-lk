@@ -62,8 +62,6 @@ class Engine {
         void lk_hash (
             Particle particles[], 
             unordered_map<int, vector<int>>& particle_hash,
-            int rows,
-            int cols, 
             FlowField* p
         );
 
