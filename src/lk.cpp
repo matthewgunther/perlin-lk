@@ -6,6 +6,7 @@
 using namespace std;
 
 
+
 struct frame_counter {
     public:
         int frame_counter { 0 };
@@ -23,6 +24,7 @@ struct frame_counter {
         }
     }
 };
+
 
 
 int main () {
@@ -53,62 +55,29 @@ int main () {
             fc.frame_counter++;
             fc.print_fps();
 
+
             // compute optial flow vectors
             en.get_current_frame();
+
+
+
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
 
-            
+
             en.lk_hash(
                 bubbles,
                 bubble_hash, 
                 &ff
             );
 
-            
-
-
-            for (float r=1; r < en.current_frame_float.rows; r++) {
-
-                cout << r / (float)en.current_frame_float.rows<< endl;
-                int lrow = floor(r / en.current_frame_float.rows * en.current_frame_color.rows);
-
-                line(
-                    en.current_frame_color, 
-                    Point(0, lrow), 
-                    Point(en.current_frame_color.cols, lrow), 
-                    Scalar(0, 0, 100), 
-                    2
-                );
-
-
-
-            }
-
-            for (float c=1; c < en.current_frame_float.cols; c++) {
-
-                cout << c / (float)en.current_frame_float.cols<< endl;
-                int lcol = floor(c / en.current_frame_float.cols * en.current_frame_color.cols);
-
-                line(
-                    en.current_frame_color, 
-                    Point(lcol, 0), 
-                    Point(lcol, en.current_frame_color.rows), 
-                    Scalar(0, 0, 100), 
-                    2
-                );
-
-            }
-
-
-
 
             en.draw_particles(bubbles);
             char key_press;
             key_press = en.display_image("Bubble Bender", en.current_frame_color, 0);
-            // en.visualize_lk_flow();
-            // key_press = en.display_image("Flow", en.flow, DOWNSAMPLE_SCALE);
+
+
             if (key_press==27) {
                 en.destroy_all_windows();
                 en.release_cap();

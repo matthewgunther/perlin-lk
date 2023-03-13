@@ -195,20 +195,35 @@ void Engine::initialize_lk_arrays () {
 
 void Engine::get_current_frame () {
     cap >> current_frame_color;
+    
     if (FLIP_IMAGE) {
         flip(current_frame_color, current_frame_color, 1);
     }
-    current_frame_float = convert_color_image_to_float(current_frame_color);
-    current_frame_float = resize_image(current_frame_float, DOWNSAMPLE_SCALE);
+    current_frame_placeholder = convert_color_image_to_float(current_frame_color);
+    current_frame_placeholder = resize_image(current_frame_placeholder, DOWNSAMPLE_SCALE);
+
+    int top = LK_WINDOW_DIM, bottom = 50, left = 50, right = 50;
+
+    copyMakeBorder(
+        current_frame_placeholder, 
+        current_frame_float, 
+        LK_WINDOW_DIM, 
+        LK_WINDOW_DIM, 
+        LK_WINDOW_DIM, 
+        LK_WINDOW_DIM, 
+        BORDER_CONSTANT, 
+        Scalar(0, 0, 0)
+    );
 
     check_for_previous_frame();
 }
 
 Mat Engine::get_gradient_roi_vector (int r, int c, int window_dim, Mat gradient) {
     Mat roi = gradient(
-        Range(r - window_dim, r + window_dim + 1),
-        Range(c - window_dim, c + window_dim + 1)
+        Range(r - window_dim, r + window_dim),
+        Range(c - window_dim, c + window_dim)
     ).clone();
+
     roi = roi.reshape(1, roi.rows * roi.cols);
     return roi;
 }
@@ -266,6 +281,32 @@ void Engine::store_previous_frame () {
     previous_frame_float = current_frame_float.clone();
 }
 
+// to view how particles are grouped from downsample
+void Engine::visualize_downsample () {
+    // rows
+    for (float r=1; r < current_frame_float.rows; r++) {
+        int row_line = floor(r / current_frame_float.rows * current_frame_color.rows);
+        line(
+            current_frame_color, 
+            Point(0, row_line), 
+            Point(current_frame_color.cols, row_line), 
+            Scalar(0, 0, 100), 
+            2
+        );
+    }
+    // columns
+    for (float c=1; c < current_frame_float.cols; c++) {
+        int col_line = floor(c / current_frame_float.cols * current_frame_color.cols);
+        line(
+            current_frame_color, 
+            Point(col_line, 0), 
+            Point(col_line, current_frame_color.rows), 
+            Scalar(0, 0, 100), 
+            2
+        );
+    }
+}
+
 void Engine::visualize_lk_flow () {
     // reset background
     flow = Mat::zeros(current_frame_float.rows, current_frame_float.cols, CV_8UC3);
@@ -299,7 +340,7 @@ void Engine::lk_hash (
 
 
     // FlowField::get_array(noise_arr);
-    p->perlin_z += Z_DELTA*1.2;
+    p->perlin_z += NOISE_Z_DELTA*1.2;
 
     
     for (auto const& pair : particle_hash) {
@@ -308,32 +349,38 @@ void Engine::lk_hash (
         
 
         // coordinates at downsampled
-        int x = key % current_frame_float.cols;
-        int y = (key - x) / current_frame_float.cols;
+        int x = key % (current_frame_float.cols - LK_WINDOW_DIM*2);
+        int y = (key - x) / (current_frame_float.cols - LK_WINDOW_DIM*2);
 
 
         double noise_angle = p->perlin.octave3D_01(
-                (x * X_SCALAR), 
-                (y * Y_SCALAR), 
+                (x * NOISE_X_SCALAR), 
+                (y * NOISE_Y_SCALAR), 
                 p->perlin_z, 
                 4
             ) * M_PI * 4;
         float flow_x = cos(noise_angle);
         float flow_y = sin(noise_angle);
 
-
-
-
-
-        // lk flow
-        // y, x
-
-        // cout <<  " x y " << x << " " << y << endl;
-        // cout <<  " r c " << x_gradient.rows << " " << x_gradient.cols << endl;
         
-        Mat Ax = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, x_gradient);
-        Mat Ay = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, y_gradient);
-        Mat b = get_gradient_roi_vector(y, x, LK_WINDOW_DIM, t_gradient);
+        Mat Ax = get_gradient_roi_vector(
+            y + LK_WINDOW_DIM, 
+            x + LK_WINDOW_DIM, 
+            LK_WINDOW_DIM, 
+            x_gradient
+        );
+        Mat Ay = get_gradient_roi_vector(
+            y + LK_WINDOW_DIM, 
+            x + LK_WINDOW_DIM, 
+            LK_WINDOW_DIM, 
+            y_gradient
+        );
+        Mat b = get_gradient_roi_vector(
+            y + LK_WINDOW_DIM, 
+            x + LK_WINDOW_DIM, 
+            LK_WINDOW_DIM, 
+            t_gradient
+        );
 
         Mat A;
         hconcat(Ax, Ay, A);
@@ -348,11 +395,6 @@ void Engine::lk_hash (
 
 
         
-
-
-
-
-
 
         for (auto const& i : pair.second) {
 

@@ -13,18 +13,19 @@
 #define FLIP_IMAGE 1
 #define LK_WINDOW_DIM 10
 
-#define DOWNSAMPLE_SCALE 12
+#define DOWNSAMPLE_SCALE 10
 #define NUM_OF_BUBBLES 1000
 
 #define TIMESTEP 0.2
-#define PADDING 200
+#define PADDING 0
 
 #define FLOW_SCALE 100
 
-#define PERLIN_ARR_SCALE 2
-#define X_SCALAR 0.1
-#define Y_SCALAR 0.1
-#define Z_DELTA 0.01
+// noise flow field
+#define NOISE_ARR_SCALE 2
+#define NOISE_X_SCALAR 10
+#define NOISE_Y_SCALAR 10
+#define NOISE_Z_DELTA 0.01
 
 #define VEL_DAMPEN_COEFF 0.125
 #define ACC_DAMPEN_COEFF 0.25
@@ -36,6 +37,7 @@ using namespace cv;
 
 class Engine {
     public:
+        Mat current_frame_placeholder;
         Mat current_frame_color;
         Mat current_frame_float;
         Mat flow;
@@ -71,6 +73,7 @@ class Engine {
         void push_particles(Particle particles[]);
         void release_cap ();
         void store_previous_frame ();
+        void visualize_downsample ();
         void visualize_lk_flow ();
 
         void lk_hash (

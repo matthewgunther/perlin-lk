@@ -72,17 +72,17 @@ void FlowField::move_particles (
     int* cols
     ) {
         
-    int x_lim = floor(*rows / PERLIN_ARR_SCALE);
-    int y_lim = floor(*cols / PERLIN_ARR_SCALE);
+    int x_lim = floor(*rows / NOISE_ARR_SCALE);
+    int y_lim = floor(*cols / NOISE_ARR_SCALE);
     
     // compute perlin flow field
     double noise_arr[x_lim][y_lim];
     for (int y = 0; y < x_lim; y++) {
         for (int x = 0; x < y_lim; x++) {
-            noise_arr[y][x] = perlin.octave3D_01((x * X_SCALAR), (y * Y_SCALAR), perlin_z, 4) * M_PI * 4;
+            noise_arr[y][x] = perlin.octave3D_01((x * NOISE_X_SCALAR), (y * NOISE_Y_SCALAR), perlin_z, 4) * M_PI * 4;
         }
     }
-    perlin_z += Z_DELTA;
+    perlin_z += NOISE_Z_DELTA;
 
 
     for (int i = 0; i < num_of_particles; i++) {
