@@ -227,16 +227,15 @@ void Engine::move_particles (
     FlowField* p
     ) {
 
-    p->perlin_z += NOISE_Z_DELTA;
+    p->perlin_z += NOISE_Z_DELTA; // advance perlin noise field
     for (auto const& pair : particle_hash) {
 
         int key = pair.first;
-    
-        // coordinates at downsampled
+        // coordinates in downsampled space
         int x = key % (current_frame_float.cols - LK_WINDOW_DIM*2);
         int y = (key - x) / (current_frame_float.cols - LK_WINDOW_DIM*2);
 
-
+        // get noise
         double noise_angle = p->perlin.octave3D_01(
                 (x * NOISE_X_SCALAR), 
                 (y * NOISE_Y_SCALAR), 
@@ -246,7 +245,7 @@ void Engine::move_particles (
         float flow_x = cos(noise_angle);
         float flow_y = sin(noise_angle);
 
-        
+        // calculate lk flow
         Mat Ax = get_gradient_roi_vector(
             y + LK_WINDOW_DIM, 
             x + LK_WINDOW_DIM, 
@@ -275,11 +274,8 @@ void Engine::move_particles (
         float add_x = nu.at<float>(0, 0);
         float add_y = nu.at<float>(1, 0);
 
-
+        // iterate through particles
         for (auto const& i : pair.second) {
-
-
-
             // flow threshold reached, color with direction and add acceleration
             if (sqrtf32(pow(add_x, 2) + pow(add_y, 2)) > FLOW_THRESHOLD) {
                 float angle = atanf32(add_y / add_x) * 180 / M_PI;
@@ -295,9 +291,6 @@ void Engine::move_particles (
                 color[2] = 255;
                 particles[i].color = color;
             }
-            
-
-            
 
             // add optical flow acceleration, user "pushing" particles
             add(&particles[i].acc, (flow_x * FLOW_SCALE), (flow_y * FLOW_SCALE));
@@ -312,9 +305,7 @@ void Engine::move_particles (
             // dampen the motion of particles after push
             dampen(&particles[i].vel, VEL_DAMPEN_COEFF);
             dampen(&particles[i].acc, ACC_DAMPEN_COEFF);
-
         }
-
     }
 
     particle_hash.clear();
