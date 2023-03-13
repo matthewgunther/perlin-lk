@@ -6,7 +6,6 @@
 using namespace std;
 
 
-
 struct frame_counter {
     public:
         int frame_counter { 0 };
@@ -24,7 +23,6 @@ struct frame_counter {
         }
     }
 };
-
 
 
 int main () {
@@ -55,29 +53,16 @@ int main () {
             fc.frame_counter++;
             fc.print_fps();
 
-
-            // compute optial flow vectors
+            // compute optical flow + noise flow
             en.get_current_frame();
-
-
-
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
-
-
-            en.lk_hash(
-                bubbles,
-                bubble_hash, 
-                &ff
-            );
-
-
+            en.move_particles(bubbles, bubble_hash, &ff);
             en.draw_particles(bubbles);
-            char key_press;
-            key_press = en.display_image("Bubble Bender", en.current_frame_color, 0);
 
-
+            // display image
+            char key_press = en.display_image("Bubble Bender", en.current_frame_color, 0);
             if (key_press==27) {
                 en.destroy_all_windows();
                 en.release_cap();

@@ -7,8 +7,6 @@
 using namespace cv;
 
 
-
-
 class Particle {
     public:
         struct vec {

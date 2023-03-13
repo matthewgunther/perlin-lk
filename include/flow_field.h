@@ -5,11 +5,9 @@
 #include "particle.h"
 #include "PerlinNoise.hpp"
 
-
-
-
 using namespace std;
 using namespace siv;
+
 
 class FlowField {
     public:
@@ -26,12 +24,6 @@ class FlowField {
             unordered_map<int, vector<int>>& particle_hash,
             int rows,
             int cols
-        );
-        void move_particles (
-            Particle particles[], 
-            int num_of_particles,
-            int* rows, 
-            int* cols
         );
 };
 
