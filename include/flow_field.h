@@ -6,16 +6,6 @@
 #include "PerlinNoise.hpp"
 
 
-#define FLOW_SCALE 100
-#define TIMESTEP 0.2
-
-#define PERLIN_ARR_SCALE 2
-#define X_SCALAR 0.1
-#define Y_SCALAR 0.1
-#define Z_DELTA 0.01
-
-#define VEL_DAMPEN_COEFF 0.125
-#define ACC_DAMPEN_COEFF 0.25
 
 
 using namespace std;

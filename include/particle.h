@@ -6,8 +6,7 @@
 
 using namespace cv;
 
-#define TIMESTEP 0.2
-#define PADDING 200
+
 
 
 class Particle {

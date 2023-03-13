@@ -13,8 +13,22 @@
 #define FLIP_IMAGE 1
 #define LK_WINDOW_DIM 10
 
-#define DOWNSAMPLE_SCALE 10
-#define NUM_OF_BUBBLES 10000
+#define DOWNSAMPLE_SCALE 12
+#define NUM_OF_BUBBLES 1000
+
+#define TIMESTEP 0.2
+#define PADDING 200
+
+#define FLOW_SCALE 100
+
+#define PERLIN_ARR_SCALE 2
+#define X_SCALAR 0.1
+#define Y_SCALAR 0.1
+#define Z_DELTA 0.01
+
+#define VEL_DAMPEN_COEFF 0.125
+#define ACC_DAMPEN_COEFF 0.25
+
 
 using namespace std;
 using namespace cv;
@@ -66,7 +80,6 @@ class Engine {
         );
 
 
-    private:
         void check_for_previous_frame ();
         Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);
 };

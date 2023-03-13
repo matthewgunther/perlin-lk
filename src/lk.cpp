@@ -5,9 +5,6 @@
 
 using namespace std;
 
-// define macros to be used across modules
-// else macro should be defined in module header
-
 
 struct frame_counter {
     public:
@@ -15,8 +12,6 @@ struct frame_counter {
         int64_t start_tick { getTickCount() };
     
     void print_fps () {
-
- 
         if (frame_counter == 30) {   // Calculate and print FPS every 30 frames
             int64_t end_tick = getTickCount();
             double fps = frame_counter / ((end_tick - start_tick) / getTickFrequency());
@@ -26,9 +21,7 @@ struct frame_counter {
             start_tick = end_tick;
             frame_counter = 0;
         }
-
     }
-    
 };
 
 
@@ -40,7 +33,6 @@ int main () {
         en.get_current_frame();
         en.initialize_lk_arrays();
         en.initialize_kernels();
-
 
         unordered_map<int, vector<int>> bubble_hash;
 
@@ -54,25 +46,20 @@ int main () {
             en.current_frame_color.cols
         );
 
-        
         frame_counter fc;
 
-
         while (1) {
-
+            // print frames per second
             fc.frame_counter++;
             fc.print_fps();
 
-            
-            
             // compute optial flow vectors
             en.get_current_frame();
             en.compute_t_gradient();
             en.compute_x_gradient();
             en.compute_y_gradient();
-            // en.compute_lk_flow();
 
-
+            
             en.lk_hash(
                 bubbles,
                 bubble_hash, 
@@ -80,6 +67,41 @@ int main () {
             );
 
             
+
+
+            for (float r=1; r < en.current_frame_float.rows; r++) {
+
+                cout << r / (float)en.current_frame_float.rows<< endl;
+                int lrow = floor(r / en.current_frame_float.rows * en.current_frame_color.rows);
+
+                line(
+                    en.current_frame_color, 
+                    Point(0, lrow), 
+                    Point(en.current_frame_color.cols, lrow), 
+                    Scalar(0, 0, 100), 
+                    2
+                );
+
+
+
+            }
+
+            for (float c=1; c < en.current_frame_float.cols; c++) {
+
+                cout << c / (float)en.current_frame_float.cols<< endl;
+                int lcol = floor(c / en.current_frame_float.cols * en.current_frame_color.cols);
+
+                line(
+                    en.current_frame_color, 
+                    Point(lcol, 0), 
+                    Point(lcol, en.current_frame_color.rows), 
+                    Scalar(0, 0, 100), 
+                    2
+                );
+
+            }
+
+
 
 
             en.draw_particles(bubbles);
