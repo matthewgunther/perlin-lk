@@ -1,7 +1,8 @@
 #include <iostream>
-#include "../include/engine.h"
-#include "../include/flow_field.h"
-#include "../include/particle.h"
+
+#include "engine.h"
+#include "flow_field.h"
+#include "particle.h"
 
 using namespace std;
 

@@ -3,6 +3,16 @@
 ## By Matthew Gunther  
 
 
+### To Do:
+
+[ ] Build script within Docker
+[ ] Link Perlin and OpenCV executables
+[ ] Unit Tests
+
+
+
+
+
 ### Primary parts to develop
 1. Lucas-Kanade flow from web cam input
 2. Perlin noise particle flow field

@@ -2,3 +2,4 @@
 Makefile
 proj-exe
 code_snippets.cpp
+build/
