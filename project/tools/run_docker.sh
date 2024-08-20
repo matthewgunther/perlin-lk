@@ -1,7 +1,8 @@
-readonly src_dir="$(dirname "$0")/src"
+readonly project_dir="$(dirname "$0")/.."
 readonly build_dir="$(dirname "$0")/build"
 
 docker run  \
-  -v "${src_dir}":"/app/src" \
+  -v "${project_dir}":"/app/project" \
   -v "${build_dir}":"/app/build" \
+  -e APP_DIR="/app/" \
   -it --rm perlin-test-docker
