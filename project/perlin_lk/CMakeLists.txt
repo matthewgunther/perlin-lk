@@ -4,6 +4,8 @@ project(perlin_lk)
 
 message("Hello")
 
+add_subdirectory(tests)
+
 # set(OTHER_SRC
 #     ${CMAKE_SOURCE_DIR}/src/engine.cpp
 #     ${CMAKE_SOURCE_DIR}/src/flow_field.cpp
