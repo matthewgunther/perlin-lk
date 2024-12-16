@@ -326,7 +326,7 @@ void Engine::move_particles (
 
 int Engine::open_camera () {
     cout << "Opening camera..."; 
-    VideoCapture cap_init(0);
+    VideoCapture cap_init(0, CAP_V4L2);
     if (!cap_init.isOpened()) {
         cout << "FAILED camera open" << endl;
         return 1;

@@ -1,5 +1,4 @@
-#ifndef FLOW_FIELD_H
-#define FLOW_FIELD_H
+#pragma once
 
 #include <iostream>
 #include "particle.h"
@@ -26,5 +25,3 @@ class FlowField {
             int cols
         );
 };
-
-#endif

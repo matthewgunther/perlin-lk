@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cmake -S "${APP_DIR}/project/perlin_lk" -B "${APP_DIR}/build"
-cmake --build "${APP_DIR}/build"
+cmake -S "${HOME_DIR}/project/perlin_lk" -B "${HOME_DIR}/build"
+cmake --build "${HOME_DIR}/build"

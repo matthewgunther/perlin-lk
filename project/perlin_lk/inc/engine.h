@@ -1,5 +1,4 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#pragma once
 
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
@@ -22,11 +21,11 @@ using namespace cv;
 #define LK_WINDOW_DIM 10
 
 // noise flow field
-#define FLOW_SCALE 100
+#define FLOW_SCALE 50
 #define NOISE_ARR_SCALE 2
 #define NOISE_X_SCALAR 10
 #define NOISE_Y_SCALAR 10
-#define NOISE_Z_DELTA 0.015
+#define NOISE_Z_DELTA 0.005
 
 // particles
 #define TIMESTEP 0.2
@@ -83,6 +82,3 @@ Vec3b get_rgb_from_hsv (float angle);
 Vec3b get_color (float x, float y);
 float map_atan_to_360_deg (float x, float y, float angle);
 Mat resize_image (Mat image, float scale);
-
-
-#endif

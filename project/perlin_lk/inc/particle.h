@@ -1,5 +1,4 @@
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#pragma once
 
 #include <cmath>
 #include <opencv4/opencv2/opencv.hpp>
@@ -23,6 +22,3 @@ void check_magnitude_limit (Particle::vec* vec_pointer);
 void check_window_bound (Particle::vec* vec_pointer, float bound_x, float bound_y);
 void dampen (Particle::vec* vec_pointer, float dampen_coeff);
 void update_vec (Particle::vec* vec_one_pointer, Particle::vec* vec_two_pointer);
-
-
-#endif
