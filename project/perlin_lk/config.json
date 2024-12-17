@@ -1,0 +1,6 @@
+{
+    "num_bubbles" : 60,
+    "timestep" : 0.2,
+    "flow_window_dim" : 10,
+    "display_flow_overlay" : false
+}

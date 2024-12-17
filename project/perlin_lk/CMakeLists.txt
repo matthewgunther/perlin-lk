@@ -4,7 +4,9 @@ project(perlin_lk)
 
 
 find_package( OpenCV REQUIRED )
-# add_executable( DisplayImage DisplayImage.cpp )
+find_package(Boost REQUIRED COMPONENTS json)
+
+
 
 message("opencv libs") 
 # message(${OpenCV_LIBS})
@@ -23,11 +25,14 @@ message("opencv libs")
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
 
+
 add_library(${PROJECT_NAME}_lib 
 ${CMAKE_SOURCE_DIR}/inc/engine.h    ${CMAKE_SOURCE_DIR}/inc/bubble.h # ${CMAKE_SOURCE_DIR}/inc/flow_field.h       ${CMAKE_SOURCE_DIR}/inc/particle.h 
 ${CMAKE_SOURCE_DIR}/src/engine.cpp  ${CMAKE_SOURCE_DIR}/src/bubble.cpp) # ${CMAKE_SOURCE_DIR}/src/flow_field.cpp ${CMAKE_SOURCE_DIR}/src/particle.cpp )
 # target_include_directories(${PROJECT_NAME}_lib  ${CMAKE_SOURCE_DIR}/inc)
-target_link_libraries( ${PROJECT_NAME}_lib ${OpenCV_LIBS})
+target_link_libraries( ${PROJECT_NAME}_lib ${OpenCV_LIBS} ${Boost_LIBRARIES})
+
+
 # target_link_libraries( ${PROJECT_NAME}_lib OpenCV::OpenCV)
 
 

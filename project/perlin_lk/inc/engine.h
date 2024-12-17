@@ -6,6 +6,7 @@
 // #include "flow_field.h"
 
 #include "bubble.h"
+#include <boost/json.hpp>
 
 // // general
 // #define DOWNSAMPLE_SCALE 10
@@ -30,70 +31,89 @@
 // #define VEL_DAMPEN_COEFF 0.125
 // #define ACC_DAMPEN_COEFF 0.25
 
+#include "PerlinNoise.hpp"
 
 class Engine {
 
-    public:
+public:
+  Engine(const boost::json::value &config);
+  ~Engine();
+  void run();
 
-         Engine(const std::uint32_t& num_bubbles);
-        ~Engine();
-        void run();
+private:
+  // Mat flow;
 
-    private:
-        // Mat flow;
+  cv::VideoCapture open_camera();
+  void get_frame();
+  char display_image();
 
-        cv::VideoCapture open_camera();
-        void get_frame();
-        char display_image();
+  void initialize_bubbles(const std::uint32_t &num_bubbles);
+  void draw_bubbles() const;
+  void move_bubbles();
+  void perlin_update(Bubble &bubble);
+  void save_frame();
 
-        void initialize_bubbles(const std::uint32_t& num_bubbles);
-        void draw_bubbles() const;
+  void compute_lk_flow();
 
-        cv::VideoCapture cap_;
-        cv::Mat frame_bgr_;
-        std::vector<Bubble> bubbles_;
+  void flow_update(Bubble &bubble);
 
+  cv::VideoCapture cap_;
+  cv::Mat frame_bgr_;
+  cv::Mat frame_gray_;
+  cv::Mat frame_gray_prev_;
+  cv::Mat grad_t_;
+  cv::Mat grad_x_;
+  cv::Mat grad_y_;
+  cv::Mat flow_x_;
+  cv::Mat flow_y_;
+  cv::Mat Ax_;
+  cv::Mat Ay_;
+  cv::Mat b_;
 
+  std::vector<Bubble> bubbles_;
+  const double timestep_;
+  const int flow_window_dim_;
+  const bool display_flow_overlay_;
 
+  const siv::PerlinNoise::seed_type seed = 123456u;
+  const siv::PerlinNoise perlin_{seed};
+  float perlin_z{0};
 
+  // private:
+  //     VideoCapture cap;
+  //     Mat current_frame_placeholder;
+  //     Mat current_frame_float;
+  //     Mat previous_frame_float;
+  //     Mat t_gradient;
+  //     Mat x_gradient;
+  //     Mat y_gradient;
+  //     Mat x_flow;
+  //     Mat y_flow;
+  //     Mat x_kernel;
+  //     Mat y_kernel;
 
-
-    // private:
-    //     VideoCapture cap;
-    //     Mat current_frame_placeholder;
-    //     Mat current_frame_float; 
-    //     Mat previous_frame_float;
-    //     Mat t_gradient;
-    //     Mat x_gradient;
-    //     Mat y_gradient;
-    //     Mat x_flow;
-    //     Mat y_flow;
-    //     Mat x_kernel;
-    //     Mat y_kernel;
-
-    // public:
-    //     void check_for_previous_frame ();
-    //     void compute_lk_flow ();
-    //     void compute_t_gradient ();
-    //     void compute_x_gradient ();
-    //     void compute_y_gradient ();
-    //     void destroy_all_windows ();
-    //     char display_image (string title, Mat image, float resize_scale);
-    //     void draw_particles (Particle particles[]);
-    //     void get_current_frame ();
-    //     Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat gradient);
-    //     void initialize_kernels ();
-    //     void initialize_lk_arrays ();
-    //     void move_particles (
-    //         Particle particles[], 
-    //         unordered_map<int, vector<int>>& particle_hash,
-    //         FlowField* p
-    //     );
-    //     int open_camera ();
-    //     void release_cap ();
-    //     void store_previous_frame ();
-    //     void visualize_downsample ();
-    //     void visualize_lk_flow ();
+  // public:
+  //     void check_for_previous_frame ();
+  //     void compute_lk_flow ();
+  //     void compute_t_gradient ();
+  //     void compute_x_gradient ();
+  //     void compute_y_gradient ();
+  //     void destroy_all_windows ();
+  //     char display_image (string title, Mat image, float resize_scale);
+  //     void draw_particles (Particle particles[]);
+  //     void get_current_frame ();
+  //     Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat
+  //     gradient); void initialize_kernels (); void initialize_lk_arrays ();
+  //     void move_particles (
+  //         Particle particles[],
+  //         unordered_map<int, vector<int>>& particle_hash,
+  //         FlowField* p
+  //     );
+  //     int open_camera ();
+  //     void release_cap ();
+  //     void store_previous_frame ();
+  //     void visualize_downsample ();
+  //     void visualize_lk_flow ();
 };
 
 // Mat convert_color_image_to_float (Mat image);

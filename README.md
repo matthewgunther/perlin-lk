@@ -21,24 +21,16 @@ Enter Docker container:
 project/tools/run_docker.sh
 ```
 
-## Diagram
-```mermaid
----
-title: BubbleBender
----
-classDiagram
+## Build
 
-    class Engine {
-        - std::vector<Point> points
-        
-    }
+From within the Docker container:
+```bash
+./project/build.sh
+```
 
-    class Point {
-        - int x
-        - int y
-        + set_pos()
-        + Point()  // Set initial state
+## Running
 
-
-    }
+From within the Docker container:
+```bash
+./build/perlin_lk -c ./project/perlin_lk/config.json 
 ```
