@@ -1,6 +1,15 @@
 {
-    "num_bubbles" : 60,
-    "timestep" : 0.2,
-    "flow_window_dim" : 10,
+    "bubbles" : {
+        "num_bubbles" : 1000,
+        "max_acc": 100.0,
+        "max_vel": 10.0,
+        "dampen_rate_acc": 0.2
+
+    },
+    "timestep" : 0.1,
+    "flow_mat_dim" : 10,
+    "flow_window_dim" : 8,
+    "perlin_z_shift": 0.01,
     "display_flow_overlay" : false
+
 }

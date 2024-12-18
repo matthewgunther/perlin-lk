@@ -1,124 +1,117 @@
 #pragma once
 
+#include <boost/json.hpp>
 #include <iostream>
 #include <opencv4/opencv2/opencv.hpp>
 
-// #include "flow_field.h"
-
-#include "bubble.h"
-#include <boost/json.hpp>
-
-// // general
-// #define DOWNSAMPLE_SCALE 10
-// #define NUM_OF_BUBBLES 1000
-#define PADDING 0
-
-// // engine
-// #define ACC_SCALE 1000
-// #define FLOW_THRESHOLD 5
-// #define FLIP_IMAGE 1
-// #define LK_WINDOW_DIM 10
-
-// // noise flow field
-// #define FLOW_SCALE 50
-// #define NOISE_ARR_SCALE 2
-// #define NOISE_X_SCALAR 10
-// #define NOISE_Y_SCALAR 10
-// #define NOISE_Z_DELTA 0.005
-
-// // particles
-// #define TIMESTEP 0.2
-// #define VEL_DAMPEN_COEFF 0.125
-// #define ACC_DAMPEN_COEFF 0.25
-
 #include "PerlinNoise.hpp"
+#include "bubble.h"
 
+/// @brief Engine to run image stream and manage bubbles
 class Engine {
 
 public:
+  /// @brief Engine constructor
+  /// @param config Boost JSON config
   Engine(const boost::json::value &config);
+
+  /// @brief Engine destructor, close out OpenCV objects
   ~Engine();
+
+  /// @brief Stream camera and interact with bubbles
   void run();
 
 private:
-  // Mat flow;
-
-  cv::VideoCapture open_camera();
-  void get_frame();
-  char display_image();
-
-  void initialize_bubbles(const std::uint32_t &num_bubbles);
-  void draw_bubbles() const;
-  void move_bubbles();
-  void perlin_update(Bubble &bubble);
-  void save_frame();
-
+  /// @brief Compute Lucas Kanade flow 2D
   void compute_lk_flow();
 
-  void flow_update(Bubble &bubble);
+  /// @brief Display Image
+  /// @return Key value captured by OpenCV
+  char display_image();
 
+  /// @brief Draw bubbles over image
+  void draw_bubbles() const;
+
+  /// @brief Get latest frame
+  void get_frame();
+
+  /// @brief Initialize bubbles with random position in the frame
+  /// @param config Boost JSON config for bubbles
+  void initialize_bubbles(const boost::json::value &config);
+
+  /// @brief Move bubbles based on Perlin noise and LK flow
+  void move_bubbles();
+
+  /// @brief Open camera
+  /// @return OpenCV VideoCapture object
+  cv::VideoCapture open_camera();
+
+  /// @brief Save current frame to previous frame
+  void save_frame();
+
+  /// @brief Update bubble based on optical flow
+  /// @param bubble Bubble object to move
+  void update_bubble_flow(Bubble &bubble);
+
+  /// @brief Update bubble based on Perlin noise
+  /// @param bubble Bubble object to move
+  void update_bubble_perlin(Bubble &bubble);
+
+  /// @brief OpenCV video capture object to grab frames from
   cv::VideoCapture cap_;
+
+  /// @brief Current color frame
   cv::Mat frame_bgr_;
+  /// @brief Current gray frame
   cv::Mat frame_gray_;
+  /// @brief Previous gray frame
   cv::Mat frame_gray_prev_;
+
+  /// @brief Time gradient matrix
   cv::Mat grad_t_;
+  /// @brief X gradient matrix
   cv::Mat grad_x_;
+  /// @brief Y gradient matrix
   cv::Mat grad_y_;
+
+  /// @brief Optical flow for X
   cv::Mat flow_x_;
+  /// @brief Optical flow for Y
   cv::Mat flow_y_;
+  /// @brief Color matrix for optical flow direction
+  cv::Mat color_mat_;
+
+  /// @brief Matrix for Optical flow computation
   cv::Mat Ax_;
+  /// @brief Matrix for Optical flow computation
   cv::Mat Ay_;
+  /// @brief Matrix for Optical flow computation
   cv::Mat b_;
 
+  /// @brief Bubbles which are randomly moving and can be pushed
   std::vector<Bubble> bubbles_;
+  /// @brief Timestep for physics computations
   const double timestep_;
+  /// @brief Optical flow matrix dimension
+  const int flow_mat_dim_;
+  /// @brief Optical flow window dimension
   const int flow_window_dim_;
+  /// @brief Flag to display blended image
   const bool display_flow_overlay_;
 
+  /// @brief Perlin noise seed
   const siv::PerlinNoise::seed_type seed = 123456u;
+  /// @brief Perlin noise object
   const siv::PerlinNoise perlin_{seed};
+  /// @brief 3D Perlin noise value
   float perlin_z{0};
+  /// @brief Delta by which to advance Perlin noise field
+  const float perlin_z_shift_;
 
-  // private:
-  //     VideoCapture cap;
-  //     Mat current_frame_placeholder;
-  //     Mat current_frame_float;
-  //     Mat previous_frame_float;
-  //     Mat t_gradient;
-  //     Mat x_gradient;
-  //     Mat y_gradient;
-  //     Mat x_flow;
-  //     Mat y_flow;
-  //     Mat x_kernel;
-  //     Mat y_kernel;
-
-  // public:
-  //     void check_for_previous_frame ();
-  //     void compute_lk_flow ();
-  //     void compute_t_gradient ();
-  //     void compute_x_gradient ();
-  //     void compute_y_gradient ();
-  //     void destroy_all_windows ();
-  //     char display_image (string title, Mat image, float resize_scale);
-  //     void draw_particles (Particle particles[]);
-  //     void get_current_frame ();
-  //     Mat get_gradient_roi_vector (int r, int c, int windom_dim, Mat
-  //     gradient); void initialize_kernels (); void initialize_lk_arrays ();
-  //     void move_particles (
-  //         Particle particles[],
-  //         unordered_map<int, vector<int>>& particle_hash,
-  //         FlowField* p
-  //     );
-  //     int open_camera ();
-  //     void release_cap ();
-  //     void store_previous_frame ();
-  //     void visualize_downsample ();
-  //     void visualize_lk_flow ();
+  /// @brief Maximum bubble acceleration
+  const double max_acc_;
+  /// @brief Accelration dampening coefficient
+  const double dampen_rate_acc_;
+  /// @brief Maximum bubble velocity
+  const double max_vel_;
 };
-
-// Mat convert_color_image_to_float (Mat image);
-// Mat draw_color_bar (Mat image);
-// Vec3b get_rgb_from_hsv (float angle);
-// Vec3b get_color (float x, float y);
-// float map_atan_to_360_deg (float x, float y, float angle);
-// Mat resize_image (Mat image, float scale);
