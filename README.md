@@ -34,3 +34,15 @@ From within the Docker container:
 ```bash
 ./build/perlin_lk -c ./project/perlin_lk/config.json 
 ```
+
+## Tools
+
+Open VS code
+```bash
+code . --no-sandbox --user-data-dir .vscode-files
+```
+
+Run C++ Linter
+```bash
+project/tools/format_cpp.sh
+```

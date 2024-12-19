@@ -14,8 +14,11 @@ void flip_image(const cv::Mat &image) { cv::flip(image, image, 1); };
 /// @brief Create color matrix from X and Y flow
 /// @param x_mat X flow matrix
 /// @param y_mat Y flow matrix
+/// @param flow_color_threshold Threshold of flow magnitude at which to show
+/// color
 /// @return Matrix that is colored based on direction and magnitude of flow
-cv::Mat get_color_flow_mat(const cv::Mat &x_mat, const cv::Mat &y_mat) {
+cv::Mat get_color_flow_mat(const cv::Mat &x_mat, const cv::Mat &y_mat,
+                           const int &flow_color_threshold) {
   // Ensure input matrices have the same size and type
   CV_Assert(x_mat.size() == y_mat.size());
   CV_Assert(x_mat.type() == y_mat.type());
@@ -30,8 +33,7 @@ cv::Mat get_color_flow_mat(const cv::Mat &x_mat, const cv::Mat &y_mat) {
       float x_val = x_mat.at<float>(y, x);
       float y_val = y_mat.at<float>(y, x);
 
-      // Calculate polar coordinates
-      float radius = std::sqrt(x_val * x_val + y_val * y_val) * 2;
+      float magnitude = std::sqrt(pow(x_val, 2) + pow(y_val, 2));
       float angle = std::atan2(y_val, x_val);
 
       // Map angle to hue (0-180 in OpenCV)
@@ -41,11 +43,7 @@ cv::Mat get_color_flow_mat(const cv::Mat &x_mat, const cv::Mat &y_mat) {
       // Normalize hue to 0-180 range
       hue = std::max(0, std::min(179, hue));
 
-      // Set saturation to maximum (255)
-      // Map radius to value (brightness) - you might want to normalize this
-      int value = static_cast<int>(radius);
-
-      const int sat = (value > 50) ? 255 : 0;
+      const int sat = (magnitude > flow_color_threshold) ? 255 : 0;
 
       // Create HSV pixel
       hsv_image.at<cv::Vec3b>(y, x) = cv::Vec3b(hue, sat, 255);
@@ -82,12 +80,17 @@ Engine::Engine(const boost::json::value &config)
       flow_window_dim_(config.at("flow_window_dim").as_int64()),
       display_flow_overlay_(config.at("display_flow_overlay").as_bool()),
       perlin_z_shift_(config.at("perlin_z_shift").as_double()),
-      dampen_rate_acc_{static_cast<float>(
-          config.at("bubbles").at("dampen_rate_acc").as_double())},
-      max_acc_{
-          static_cast<float>(config.at("bubbles").at("max_acc").as_double())},
-      max_vel_{
-          static_cast<float>(config.at("bubbles").at("max_vel").as_double())} {
+      dampen_rate_acc_(static_cast<float>(
+          config.at("bubbles").at("dampen_rate_acc").as_double())),
+      max_acc_(
+          static_cast<float>(config.at("bubbles").at("max_acc").as_double())),
+      max_vel_(
+          static_cast<float>(config.at("bubbles").at("max_vel").as_double())),
+      flow_color_threshold_(config.at("flow_color_threshold").as_double()),
+      flow_blend_ratio_(std::max(
+          0.0, std::min(1.0, config.at("flow_blend_ratio").as_double()))),
+      flow_scalar_(config.at("flow_scalar").as_double()),
+      perlin_scalar_(config.at("perlin_scalar").as_double()) {
   if (!cap_.isOpened()) {
     std::cout << "Camera initialization failed." << std::endl;
   } else {
@@ -102,6 +105,8 @@ Engine::Engine(const boost::json::value &config)
 
     Ax_ = cv::Mat(1, pow(flow_window_dim_, 2), CV_32FC1);
     Ay_ = cv::Mat(1, pow(flow_window_dim_, 2), CV_32FC1);
+    Ay_ = cv::Mat(1, pow(flow_window_dim_, 2), CV_32FC1);
+    A_ = cv::Mat(1, pow(flow_window_dim_, 2) * 2, CV_32FC1);
     b_ = cv::Mat(1, pow(flow_window_dim_, 2), CV_32FC1);
   }
 }
@@ -129,11 +134,10 @@ void Engine::compute_lk_flow() {
           get_gradient_roi_vector(row, col, flow_window_dim_, grad_y_);
       cv::Mat b_ = get_gradient_roi_vector(row, col, flow_window_dim_, grad_t_);
 
-      cv::Mat A;
-      cv::hconcat(Ax_, Ay_, A);
+      cv::hconcat(Ax_, Ay_, A_);
 
-      cv::Mat nu = (A.t() * A).inv() * A.t() * b_; // compute flow vector
-      nu = -100 * nu; // make negative to flip flow direction
+      cv::Mat nu = (A_.t() * A_).inv() * A_.t() * b_; // compute flow vector
+      nu = -1 * nu; // make negative to flip flow direction
 
       flow_x_.at<float>(r, c) = nu.at<float>(0, 0);
       flow_y_.at<float>(r, c) = nu.at<float>(1, 0);
@@ -147,7 +151,8 @@ char Engine::display_image() {
                cv::Size(frame_bgr_.cols, frame_bgr_.rows), 0, 0,
                cv::INTER_NEAREST);
     cv::Mat blend;
-    cv::addWeighted(frame_bgr_, 0.5, color_mat_, 0.5, 0.0, blend);
+    cv::addWeighted(frame_bgr_, 1.0 - flow_blend_ratio_, color_mat_,
+                    flow_blend_ratio_, 0.0, blend);
 
     cv::imshow("BubbleBender [flow overlayed]", blend);
 
@@ -208,7 +213,6 @@ void Engine::move_bubbles() {
 }
 
 void Engine::run() {
-
   if (cap_.isOpened()) {
 
     while (1) {
@@ -217,7 +221,7 @@ void Engine::run() {
       // compute optical flow + noise flow
       compute_lk_flow();
       move_bubbles();
-      color_mat_ = get_color_flow_mat(flow_x_, flow_y_);
+      color_mat_ = get_color_flow_mat(flow_x_, flow_y_, flow_color_threshold_);
       draw_bubbles();
 
       // display image
@@ -238,17 +242,15 @@ void Engine::update_bubble_flow(Bubble &bubble) {
   const float flow_y = flow_y_.at<float>(
       floor(bubble.get_pos_y() / frame_bgr_.rows * flow_mat_dim_),
       floor(bubble.get_pos_x() / frame_bgr_.cols * flow_mat_dim_));
-  bubble.add_acc(10 * flow_x, 10 * flow_y);
+  bubble.add_acc(flow_scalar_ * flow_x, flow_scalar_ * flow_y);
 }
 
 void Engine::update_bubble_perlin(Bubble &bubble) {
-
-  // get noise
   double noise_angle =
       perlin_.octave3D_01((bubble.get_pos_x() * 10), (bubble.get_pos_y() * 10),
                           perlin_z, 4) *
       M_PI * 4;
-  float flow_x = cos(noise_angle);
-  float flow_y = sin(noise_angle);
-  bubble.add_acc(flow_x * 0.0001, flow_y * 0.0001);
+  float perlin_x = cos(noise_angle);
+  float perlin_y = sin(noise_angle);
+  bubble.add_acc(perlin_scalar_ * perlin_x, perlin_scalar_ * perlin_y);
 }

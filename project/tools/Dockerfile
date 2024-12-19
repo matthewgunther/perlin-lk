@@ -8,8 +8,10 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     clang-format \
     cmake \
+    doxygen \
     git \
     g++ \
+    graphviz \
     wget \
     make \
     unzip \
@@ -44,14 +46,16 @@ RUN BOOST_VERSION_UNDERSCORE=$(echo ${BOOST_VERSION} | sed 's/\./_/g') && \
 ENV BOOST_ROOT=/usr/local
 ENV PATH=$BOOST_ROOT/bin:$PATH
 
-# Install PerlinNoise header file
-RUN git clone https://github.com/Reputeless/PerlinNoise.git && \
-    mv ./PerlinNoise/PerlinNoise.hpp /usr/include/PerlinNoise.hpp
-
 # Install VS Code
 RUN wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" --output-document=vscode.deb \
     && apt-get update && apt-get install -y ./vscode.deb \
     && rm -rf /var/lib/apt/lists/*
+
+# Install PerlinNoise header file
+RUN git clone https://github.com/Reputeless/PerlinNoise.git && \
+    mv ./PerlinNoise/PerlinNoise.hpp /usr/include/PerlinNoise.hpp
+
+
 
 # Set working directory
 WORKDIR /home/ubuntu

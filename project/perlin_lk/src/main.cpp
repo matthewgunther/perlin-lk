@@ -20,8 +20,9 @@ std::string get_config_path(int argc, char *argv[]) {
       }
     }
   }
-  throw std::runtime_error("Error: Please provide a path to the config file in "
-                           "the format `./perlin_lk -c /path/to/config.json`");
+  throw std::runtime_error(
+      "Error: Please provide a path to the config file in "
+      "the format `./build/perlin_lk -c ./project/perlin_lk/config.json`");
 }
 
 /// @brief Main function to run engine

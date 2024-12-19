@@ -9,7 +9,6 @@
 
 /// @brief Engine to run image stream and manage bubbles
 class Engine {
-
 public:
   /// @brief Engine constructor
   /// @param config Boost JSON config
@@ -87,6 +86,8 @@ private:
   cv::Mat Ay_;
   /// @brief Matrix for Optical flow computation
   cv::Mat b_;
+  /// @brief Concatenated Ax_ and Ay_
+  cv::Mat A_;
 
   /// @brief Bubbles which are randomly moving and can be pushed
   std::vector<Bubble> bubbles_;
@@ -114,4 +115,12 @@ private:
   const double dampen_rate_acc_;
   /// @brief Maximum bubble velocity
   const double max_vel_;
+  /// @brief Threshold of flow magnitude to show color on bubbles
+  const double flow_color_threshold_;
+  /// @brief Blend proportion (0 - 1) of optical flow vs camera frame
+  const double flow_blend_ratio_;
+  /// @brief Scalar for Optical flow acceleration of bubbles
+  const double flow_scalar_;
+  /// @brief Scalar for Perlin Noise acceleration of bubbles
+  const double perlin_scalar_;
 };
